@@ -2,6 +2,24 @@ fu! s:matchtabs(item, pat)
 	retu match(split(a:item, '\t\+')[0], a:pat)
 endf
 
+fu! s:highlight(input, mmode)
+    " highlight matches
+    " TODO make it case-unsensitive
+    cal clearmatches()
+    if a:mmode == "filename-only"
+      for i in range(len(a:input))
+        let pat = substitute(a:input[i], '\[\^\(.\{-}\)\]\\{-}', '[^\\/\1]\\{-}', 'g')
+        let pat = substitute(a:input[i], '\$\@<!$', '\\ze[^\\/]*$', 'g')
+        cal matchadd('CtrlPMatch', '\C'.pat)
+      endfor
+    el
+      for i in range(len(a:input))
+        cal matchadd('CtrlPMatch', '\M'.a:input[i])
+      endfor
+    en
+    cal matchadd('CtrlPLinePre', '^>')
+endf
+
 fu! matcher#MatchItPy(lines,input,limit,mmode, ispath, crfile, regex)
   if a:input == ''
     let array = a:lines[0:a:limit]
@@ -48,21 +66,7 @@ EOF
   endfor
 en
 
-" highlight matches
-" TODO make it case-unsensitive
-cal clearmatches()
-if a:mmode == "filename-only"
-  for i in range(len(a:input))
-    let pat = substitute(a:input[i], '\[\^\(.\{-}\)\]\\{-}', '[^\\/\1]\\{-}', 'g')
-    let pat = substitute(a:input[i], '\$\@<!$', '\\ze[^\\/]*$', 'g')
-    cal matchadd('CtrlPMatch', '\C'.pat)
-  endfor
-el
-  for i in range(len(a:input))
-    cal matchadd('CtrlPMatch', '\M'.a:input[i])
-  endfor
-en
-cal matchadd('CtrlPLinePre', '^>')
+cal s:highlight(a:input, a:mmode)
 
 retu array
 endf
