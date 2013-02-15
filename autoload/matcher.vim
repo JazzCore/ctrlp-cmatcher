@@ -23,6 +23,9 @@ endf
 fu! matcher#MatchItPy(lines,input,limit,mmode, ispath, crfile, regex)
   if a:input == ''
     let array = a:lines[0:a:limit]
+    if a:ispath && !empty(a:crfile)
+      cal remove(array, index(array, a:crfile))
+    en
   el
 
   " use built-in matcher if mmode set to match until first tab ( in other case
