@@ -59,6 +59,17 @@ fu! matcher#cmatch(lines,input,limit,mmode, ispath, crfile, regex)
     retu array
     en
   el
+    if a:regex
+      "TODO respect a:mmode
+      let array = []
+      for item in a:lines
+        if match(item, a:input) >= 0
+          cal add(array,item)
+        endif
+      endfor
+      "TODO add highlight
+      retu array
+    endif
     " use built-in matcher if mmode set to match until first tab ( in other case
     " tag.vim doesnt work
     if a:mmode == "first-non-tab"
@@ -68,6 +79,7 @@ fu! matcher#cmatch(lines,input,limit,mmode, ispath, crfile, regex)
           cal add(array,item)
         en
       endfo
+      "TODO add highlight
       retu array
     en
     let matchlist = s:cmatcher(a:lines,a:input,a:limit,a:mmode, a:ispath, a:crfile, a:regex)
