@@ -1,3 +1,10 @@
+" =============================================================================
+" File:          autoload/matcher.vim
+" Description:   CtrlP C matching extension
+" Author:        Stanislav Golovanov <stgolovanov@gmail.com>
+" Version:       0.5.1
+" =============================================================================
+
 fu! s:matchtabs(item, pat)
 	retu match(split(a:item, '\t\+')[0], a:pat)
 endf
@@ -43,7 +50,7 @@ fu! s:highlight(input, mmode)
     cal matchadd('CtrlPLinePre', '^>')
 endf
 
-fu! matcher#MatchItPy(lines,input,limit,mmode, ispath, crfile, regex)
+fu! matcher#cmatch(lines,input,limit,mmode, ispath, crfile, regex)
   if a:input == ''
     let array = a:lines[0:a:limit]
     if a:ispath && !empty(a:crfile)
@@ -66,6 +73,7 @@ fu! matcher#MatchItPy(lines,input,limit,mmode, ispath, crfile, regex)
     let matchlist = s:cmatcher(a:lines,a:input,a:limit,a:mmode, a:ispath, a:crfile, a:regex)
     let array = []
 
+    " Show only lines where we matched something ( value > 0 )
     for line in matchlist
       if line['value'] > 0
         "This is needed to fix \\ in paths on Windows
