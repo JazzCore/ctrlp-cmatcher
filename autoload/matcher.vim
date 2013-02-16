@@ -32,19 +32,30 @@ EOF
 retu matchlist
 endf
 
-fu! s:highlight(input, mmode)
+fu! s:highlight(input, mmode, regex)
     " highlight matches
     " TODO make it case-unsensitive
     cal clearmatches()
-    if a:mmode == "filename-only"
-      for i in range(len(a:input))
-        let pat = substitute(a:input[i], '\[\^\(.\{-}\)\]\\{-}', '[^\\/\1]\\{-}', 'g')
-        let pat = substitute(a:input[i], '\$\@<!$', '\\ze[^\\/]*$', 'g')
-        cal matchadd('CtrlPMatch', '\C'.pat)
       endfor
+    if a:regex
+      let pat = ""
+      if a:mmode == "filename-only"
+          let pat = substitute(a:input, '\$\@<!$', '\\ze[^\\/]*$', 'g')
+      en
+      if !empty(pat)
+        let pat = substitute(pat, '\\\@<!\^', '^> \\zs', 'g')
+      el
+        let pat = substitute(a:input, '\\\@<!\^', '^> \\zs', 'g')
+      en
+      cal matchadd('CtrlPMatch', pat)
     el
       for i in range(len(a:input))
-        cal matchadd('CtrlPMatch', '\M'.a:input[i])
+        if a:mmode == "filename-only"
+            let pat = substitute(a:input[i], '\$\@<!$', '\\ze[^\\/]*$', 'g')
+            cal matchadd('CtrlPMatch', '\C'.pat)
+        el
+            cal matchadd('CtrlPMatch', '\M'.a:input[i])
+        en
       endfor
     en
     cal matchadd('CtrlPLinePre', '^>')
@@ -52,6 +63,7 @@ endf
 
 fu! matcher#cmatch(lines,input,limit,mmode, ispath, crfile, regex)
   if a:input == ''
+    cal clearmatches()
     let array = a:lines[0:a:limit]
     if a:ispath && !empty(a:crfile)
       cal remove(array, index(array, a:crfile))
@@ -59,6 +71,16 @@ fu! matcher#cmatch(lines,input,limit,mmode, ispath, crfile, regex)
     retu array
     en
   el
+    if a:regex
+      let array = []
+      for item in a:lines
+        if match(item, a:input) >= 0
+          cal add(array,item)
+        endif
+      endfor
+      cal s:highlight(a:input, a:mmode, a:regex)
+      retu array
+    endif
     " use built-in matcher if mmode set to match until first tab ( in other case
     " tag.vim doesnt work
     if a:mmode == "first-non-tab"
@@ -68,6 +90,7 @@ fu! matcher#cmatch(lines,input,limit,mmode, ispath, crfile, regex)
           cal add(array,item)
         en
       endfo
+      "TODO add highlight
       retu array
     en
     let matchlist = s:cmatcher(a:lines,a:input,a:limit,a:mmode, a:ispath, a:crfile, a:regex)
@@ -82,7 +105,7 @@ fu! matcher#cmatch(lines,input,limit,mmode, ispath, crfile, regex)
     endfor
   en
 
-  cal s:highlight(a:input, a:mmode)
+  cal s:highlight(a:input, a:mmode, a:regex)
 
   retu array
 endf
