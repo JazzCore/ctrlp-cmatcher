@@ -9,6 +9,11 @@ fu! s:matchtabs(item, pat)
 	retu match(split(a:item, '\t\+')[0], a:pat)
 endf
 
+fu! s:matchfname(item, pat)
+	let parts = split(a:item, '[\/]\ze[^\/]\+$')
+	retu match(parts[-1], a:pat)
+endf
+
 fu! s:cmatcher(lines,input,limit,mmode, ispath, crfile, regex)
 python << EOF
 import vim
@@ -60,10 +65,10 @@ fu! matcher#cmatch(lines,input,limit,mmode, ispath, crfile, regex)
     en
   el
     if a:regex
-      "TODO respect a:mmode
       let array = []
+      let func = a:mmode == "filename-only" ? 's:matchfname' : 'match'
       for item in a:lines
-        if match(item, a:input) >= 0
+        if call(func, [item, a:input]) >= 0
           cal add(array,item)
         endif
       endfor
