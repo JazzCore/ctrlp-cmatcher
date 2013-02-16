@@ -9,6 +9,11 @@ fu! s:matchtabs(item, pat)
 	retu match(split(a:item, '\t\+')[0], a:pat)
 endf
 
+fu! s:matchfname(item, pat)
+	let parts = split(a:item, '[\/]\ze[^\/]\+$')
+	retu match(parts[-1], a:pat)
+endf
+
 fu! s:cmatcher(lines,input,limit,mmode, ispath, crfile, regex)
 python << EOF
 import vim
@@ -59,6 +64,18 @@ fu! matcher#cmatch(lines,input,limit,mmode, ispath, crfile, regex)
     retu array
     en
   el
+    if a:regex
+      let array = []
+      let func = a:mmode == "filename-only" ? 's:matchfname' : 'match'
+      for item in a:lines
+        if call(func, [item, a:input]) >= 0
+          cal add(array,item)
+        endif
+      endfor
+      "TODO add highlight
+	  cal sort(array, ctrlp#call('s:mixedsort'))
+      retu array
+    endif
     " use built-in matcher if mmode set to match until first tab ( in other case
     " tag.vim doesnt work
     if a:mmode == "first-non-tab"
@@ -68,6 +85,7 @@ fu! matcher#cmatch(lines,input,limit,mmode, ispath, crfile, regex)
           cal add(array,item)
         en
       endfo
+      "TODO add highlight
       cal sort(array, ctrlp#call('s:mixedsort'))
       retu array
     en
