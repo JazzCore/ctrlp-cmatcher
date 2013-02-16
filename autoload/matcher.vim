@@ -68,6 +68,7 @@ fu! matcher#cmatch(lines,input,limit,mmode, ispath, crfile, regex)
           cal add(array,item)
         en
       endfo
+      cal sort(array, ctrlp#call('s:mixedsort'))
       retu array
     en
     let matchlist = s:cmatcher(a:lines,a:input,a:limit,a:mmode, a:ispath, a:crfile, a:regex)
