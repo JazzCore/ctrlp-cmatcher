@@ -2,7 +2,7 @@
 " File:          autoload/matcher.vim
 " Description:   CtrlP C matching extension
 " Author:        Stanislav Golovanov <stgolovanov@gmail.com>
-" Version:       0.5.1
+" Version:       0.6.3
 " =============================================================================
 
 fu! s:matchtabs(item, pat)
