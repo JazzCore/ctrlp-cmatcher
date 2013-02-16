@@ -199,8 +199,10 @@ PyObject* fuzzycomt_match(PyObject* self, PyObject* args)
 	}
 
 	
-    for (long i = 0; i < limit ; i++)
+    for (long i = 0, max = PyList_Size(paths); i < max; i++)
     {
+            if (i == limit)
+                break;
             // generate python dicts { 'line' : line, 'value' : value } and place dicts to list
 			PyObject *container;
 			container = PyDict_New();
