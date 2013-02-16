@@ -68,6 +68,7 @@ fu! matcher#cmatch(lines,input,limit,mmode, ispath, crfile, regex)
         endif
       endfor
       "TODO add highlight
+	  cal sort(array, ctrlp#call('s:mixedsort'))
       retu array
     endif
     " use built-in matcher if mmode set to match until first tab ( in other case
