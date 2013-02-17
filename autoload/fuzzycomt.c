@@ -128,7 +128,7 @@ double recursive_match(matchinfo_t *m,  // sharable meta-data
                         dot_file_match = 1; // so this must be a match
                 }
             }
-            else if (d >= 'A' && d <= 'Z')
+            else if (d >= 'A' && d <= 'Z' && !(c >= 'A' && c <= 'Z'))
                 d += 'a' - 'A'; // add 32 to downcase
             if (c == d)
             {
