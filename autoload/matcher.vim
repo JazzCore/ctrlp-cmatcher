@@ -2,7 +2,7 @@
 " File:          autoload/matcher.vim
 " Description:   CtrlP C matching extension
 " Author:        Stanislav Golovanov <stgolovanov@gmail.com>
-" Version:       0.6.3
+" Version:       0.7.2
 " =============================================================================
 
 fu! s:matchtabs(item, pat)
@@ -102,9 +102,6 @@ fu! matcher#cmatch(lines,input,limit,mmode, ispath, crfile, regex)
       retu array
     en
 
-    "TODO When 1st letter is upper-case matcher doesnt work
-    "TODO .lower() in python code works, but better to perform case-sensitive
-    "match
     let matchlist = s:cmatcher(a:lines,a:input,a:limit,a:mmode, a:ispath, a:crfile, a:regex)
     let array = []
 
