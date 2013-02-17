@@ -37,19 +37,27 @@ EOF
 retu matchlist
 endf
 
-fu! s:highlight(input, mmode)
+fu! s:highlight(input, mmode, regex)
     " highlight matches
-    " TODO make it case-unsensitive
     cal clearmatches()
-    if a:mmode == "filename-only"
-      for i in range(len(a:input))
-        let pat = substitute(a:input[i], '\[\^\(.\{-}\)\]\\{-}', '[^\\/\1]\\{-}', 'g')
-        let pat = substitute(a:input[i], '\$\@<!$', '\\ze[^\\/]*$', 'g')
-        cal matchadd('CtrlPMatch', '\C'.pat)
       endfor
+    if a:regex
+      let pat = ""
+      if a:mmode == "filename-only"
+          let pat = substitute(a:input, '\$\@<!$', '\\ze[^\\/]*$', 'g')
+      en
+      if empty(pat)
+        let pat = substitute(a:input, '\\\@<!\^', '^> \\zs', 'g')
+      en
+      cal matchadd('CtrlPMatch', '\c'.pat)
     el
       for i in range(len(a:input))
-        cal matchadd('CtrlPMatch', '\M'.a:input[i])
+        if a:mmode == "filename-only"
+            let pat = substitute(a:input[i], '\$\@<!$', '\\ze[^\\/]*$', 'g')
+            cal matchadd('CtrlPMatch', '\p'.pat)
+        el
+            cal matchadd('CtrlPMatch', '\M'.a:input[i])
+        en
       endfor
     en
     cal matchadd('CtrlPLinePre', '^>')
@@ -57,6 +65,7 @@ endf
 
 fu! matcher#cmatch(lines,input,limit,mmode, ispath, crfile, regex)
   if a:input == ''
+    cal clearmatches()
     let array = a:lines[0:a:limit]
     if a:ispath && !empty(a:crfile)
       cal remove(array, index(array, a:crfile))
@@ -72,8 +81,8 @@ fu! matcher#cmatch(lines,input,limit,mmode, ispath, crfile, regex)
           cal add(array,item)
         endif
       endfor
-      "TODO add highlight
 	  cal sort(array, ctrlp#call('s:mixedsort'))
+      cal s:highlight(a:input, a:mmode, a:regex)
       retu array
     endif
     " use built-in matcher if mmode set to match until first tab ( in other case
@@ -89,6 +98,10 @@ fu! matcher#cmatch(lines,input,limit,mmode, ispath, crfile, regex)
       cal sort(array, ctrlp#call('s:mixedsort'))
       retu array
     en
+
+    "TODO When 1st letter is upper-case matcher doesnt work
+    "TODO .lower() in python code works, but better to perform case-sensitive
+    "match
     let matchlist = s:cmatcher(a:lines,a:input,a:limit,a:mmode, a:ispath, a:crfile, a:regex)
     let array = []
 
@@ -101,7 +114,7 @@ fu! matcher#cmatch(lines,input,limit,mmode, ispath, crfile, regex)
     endfor
   en
 
-  cal s:highlight(a:input, a:mmode)
+  cal s:highlight(a:input, a:mmode, a:regex)
 
   retu array
 endf
