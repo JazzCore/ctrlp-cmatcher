@@ -39,7 +39,6 @@ endf
 
 fu! s:highlight(input, mmode, regex)
     " highlight matches
-    " TODO make it case-unsensitive
     cal clearmatches()
       endfor
     if a:regex
@@ -47,17 +46,15 @@ fu! s:highlight(input, mmode, regex)
       if a:mmode == "filename-only"
           let pat = substitute(a:input, '\$\@<!$', '\\ze[^\\/]*$', 'g')
       en
-      if !empty(pat)
-        let pat = substitute(pat, '\\\@<!\^', '^> \\zs', 'g')
-      el
+      if empty(pat)
         let pat = substitute(a:input, '\\\@<!\^', '^> \\zs', 'g')
       en
-      cal matchadd('CtrlPMatch', pat)
+      cal matchadd('CtrlPMatch', '\c'.pat)
     el
       for i in range(len(a:input))
         if a:mmode == "filename-only"
             let pat = substitute(a:input[i], '\$\@<!$', '\\ze[^\\/]*$', 'g')
-            cal matchadd('CtrlPMatch', '\C'.pat)
+            cal matchadd('CtrlPMatch', '\p'.pat)
         el
             cal matchadd('CtrlPMatch', '\M'.a:input[i])
         en
@@ -84,8 +81,8 @@ fu! matcher#cmatch(lines,input,limit,mmode, ispath, crfile, regex)
           cal add(array,item)
         endif
       endfor
-      "TODO add highlight
 	  cal sort(array, ctrlp#call('s:mixedsort'))
+      cal s:highlight(a:input, a:mmode, a:regex)
       retu array
     endif
     " use built-in matcher if mmode set to match until first tab ( in other case
@@ -101,6 +98,10 @@ fu! matcher#cmatch(lines,input,limit,mmode, ispath, crfile, regex)
       cal sort(array, ctrlp#call('s:mixedsort'))
       retu array
     en
+
+    "TODO When 1st letter is upper-case matcher doesnt work
+    "TODO .lower() in python code works, but better to perform case-sensitive
+    "match
     let matchlist = s:cmatcher(a:lines,a:input,a:limit,a:mmode, a:ispath, a:crfile, a:regex)
     let array = []
 
