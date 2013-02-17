@@ -68,7 +68,11 @@ endf
 
 fu! matcher#cmatch(lines,input,limit,mmode, ispath, crfile, regex)
   if a:input == ''
+    " Clear matches, that left from previous matches
     cal clearmatches()
+    " Hack to clear s:savestr flag in SplitPattern, otherwise matching in
+    " 'tag' mode will work only from 2nd char.
+    cal ctrlp#call('s:SplitPattern', '')
     let array = a:lines[0:a:limit]
     if a:ispath && !empty(a:crfile)
       cal remove(array, index(array, a:crfile))
@@ -92,8 +96,10 @@ fu! matcher#cmatch(lines,input,limit,mmode, ispath, crfile, regex)
     " tag.vim doesnt work
     if a:mmode == "first-non-tab"
       let array = []
+      " call ctrlp.vim function to get proper input pattern
+      let pat = ctrlp#call('s:SplitPattern', a:input)
       for item in a:lines
-        if call(s:matchtabs, [item,a:input]) >= 0
+        if call('s:matchtabs', [item,pat]) >= 0
           cal add(array,item)
         en
       endfo
