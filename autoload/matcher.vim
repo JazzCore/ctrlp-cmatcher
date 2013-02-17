@@ -29,7 +29,10 @@ crfile = vim.eval('a:crfile')
 regex = vim.eval('a:regex')
 
 if ispath and crfile:
-  lines.remove(crfile)
+  try:
+    lines.remove(crfile)
+  except ValueError:
+    pass
 
 matchlist = fuzzycomt.match(lines, searchinp, limit, mmode)
 vim.command('let matchlist = %s' % matchlist)
