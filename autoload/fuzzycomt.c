@@ -250,14 +250,28 @@ returnstruct findmatch(PyObject* str,PyObject* abbrev, char *mmode)
 {
     returnstruct returnobj;
 
+    // Make a copy of input string to replace all backslashes.
+    // We need to create a copy because PyString_AsString returns
+    // string that must not be changed.
+    // We will free() it later
+    char *workstr;
+    workstr = strdup(PyString_AsString(str));
+
+    // Replace all backslashes
+    for (int i = 0; i < strlen(workstr); i++) {
+        if (workstr[i] == '\\') {
+            workstr[i] = '/';
+        }
+    }
+
     matchinfo_t m;
     if (strcmp(mmode, "filename-only") == 0) {
         // get file name by splitting string on slashes
-        m.str_p = slashsplit(PyString_AsString(str));
+        m.str_p = slashsplit(workstr);
         m.str_len = strlen(m.str_p);
     }
     else {
-        m.str_p                 = PyString_AsString(str);
+        m.str_p                 = workstr;
         m.str_len               = PyString_Size(str);
     }
     m.abbrev_p              = PyString_AsString(abbrev);
@@ -287,6 +301,9 @@ returnstruct findmatch(PyObject* str,PyObject* abbrev, char *mmode)
     if (strcmp(mmode, "filename-only") == 0) {
         free(m.str_p);
     }
+
+    // Free memory after strdup()
+    free(workstr);
 	
     returnobj.str = str;
     returnobj.score = score;
