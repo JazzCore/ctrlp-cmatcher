@@ -26,13 +26,13 @@
 
 void getLineMatches(PyObject* paths, PyObject* abbrev,returnstruct matches[], char *mmode)
 {
-	// iterate over lines and get match score for every line
+    // iterate over lines and get match score for every line
     for (long i = 0, max = PyList_Size(paths); i < max; i++)
     {
         PyObject* path = PyList_GetItem(paths, i);
         returnstruct match;
         match = findmatch(path, abbrev, mmode);
-		matches[i] = match;
+        matches[i] = match;
     }
 }
 
@@ -198,45 +198,45 @@ PyObject* fuzzycomt_match(PyObject* self, PyObject* args)
     if (!PyArg_ParseTuple(args, "OOns", &paths, &abbrev, &limit, &mmode)) {
        return NULL;
     }
-	returnlist = PyList_New(0);
+    returnlist = PyList_New(0);
 
     // Type checking
-	if (PyList_Check(paths) != 1) {
+    if (PyList_Check(paths) != 1) {
         PyErr_SetString(PyExc_TypeError,"expected a list");
         return 0;
     }
 
-	if (PyString_Check(abbrev) != 1) {
+    if (PyString_Check(abbrev) != 1) {
         PyErr_SetString(PyExc_TypeError,"expected a string");
         return 0;
     }
 
-	returnstruct matches[PyList_Size(paths)];
+    returnstruct matches[PyList_Size(paths)];
 
-	if ( PyString_Size(abbrev) == 0)
-	{
-		// if string is empty - just return first (:param limit) lines
-		PyObject *initlist;
-		initlist = PyList_GetSlice(paths,0,limit);
-		return initlist;
-	}
-	else
-	{
-		// find matches and place them into matches array.
-		getLineMatches(paths,abbrev, matches, mmode);
+    if ( PyString_Size(abbrev) == 0)
+    {
+        // if string is empty - just return first (:param limit) lines
+        PyObject *initlist;
+        initlist = PyList_GetSlice(paths,0,limit);
+        return initlist;
+    }
+    else
+    {
+        // find matches and place them into matches array.
+        getLineMatches(paths,abbrev, matches, mmode);
 
-		// sort array of struct by struct.score key
-		qsort(matches, PyList_Size(paths), sizeof(returnstruct),comp_score);
-	}
+        // sort array of struct by struct.score key
+        qsort(matches, PyList_Size(paths), sizeof(returnstruct),comp_score);
+    }
 
-	
+    
     for (long i = 0, max = PyList_Size(paths); i < max; i++)
     {
             if (i == limit)
                 break;
             // generate python dicts { 'line' : line, 'value' : value } and place dicts to list
-			PyObject *container;
-			container = PyDict_New();
+            PyObject *container;
+            container = PyDict_New();
             PyDict_SetItemString(container,"line",matches[i].str);
             PyDict_SetItemString(container,"value",PyFloat_FromDouble(matches[i].score));
             PyList_Append(returnlist,container);
@@ -304,7 +304,7 @@ returnstruct findmatch(PyObject* str,PyObject* abbrev, char *mmode)
 
     // Free memory after strdup()
     free(workstr);
-	
+    
     returnobj.str = str;
     returnobj.score = score;
 
