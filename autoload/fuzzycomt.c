@@ -237,6 +237,9 @@ PyObject* fuzzycomt_match(PyObject* self, PyObject* args)
             // generate python dicts { 'line' : line, 'value' : value } and place dicts to list
             PyObject *container;
             container = PyDict_New();
+            // TODO it retuns non-encoded string. So cyrillic literals arent properly showed.
+            // There are PyString_AsDecodedObject, it works in interactive session but it fails
+            // in Vim for some reason ( probable because we dont know what encoding vim returns
             PyDict_SetItemString(container,"line",matches[i].str);
             PyDict_SetItemString(container,"value",PyFloat_FromDouble(matches[i].score));
             PyList_Append(returnlist,container);
