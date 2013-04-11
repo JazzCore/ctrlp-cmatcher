@@ -253,6 +253,58 @@ PyObject* fuzzycomt_match(PyObject* self, PyObject* args)
     return returnlist;
 }
 
+PyObject* fuzzycomt_sorted_match_list(PyObject* self, PyObject* args)
+{
+    PyObject *paths, *abbrev, *returnlist;
+    char *mmode;
+    if (!PyArg_ParseTuple(args, "OOs", &paths, &abbrev, &mmode)) {
+       return NULL;
+    }
+    returnlist = PyList_New(0);
+
+    // Type checking
+    if (PyList_Check(paths) != 1) {
+        PyErr_SetString(PyExc_TypeError,"expected a list");
+        return 0;
+    }
+
+    if (PyString_Check(abbrev) != 1) {
+        PyErr_SetString(PyExc_TypeError,"expected a string");
+        return 0;
+    }
+
+    returnstruct matches[PyList_Size(paths)];
+
+
+    if ( PyString_Size(abbrev) == 0)
+    {
+        PyObject *initlist = PyList_New(0);
+
+        return initlist;
+    }
+    else
+    {
+        // find matches and place them into matches array.
+        getLineMatches(paths,abbrev, matches, mmode);
+
+        // sort array of struct by struct.score key
+        qsort(matches, PyList_Size(paths), sizeof(returnstruct),comp_score);
+    }
+
+
+    for (long i = 0, max = PyList_Size(paths); i < max; i++)
+    {
+        if ( matches[i].score> 0 ) {
+            // TODO it retuns non-encoded string. So cyrillic literals arent properly showed.
+            // There are PyString_AsDecodedObject, it works in interactive session but it fails
+            // in Vim for some reason ( probable because we dont know what encoding vim returns
+            PyList_Append(returnlist,matches[i].str);
+        }
+    }
+
+    return returnlist;
+}
+
 
 returnstruct findmatch(PyObject* str,PyObject* abbrev, char *mmode)
 {
@@ -322,6 +374,8 @@ returnstruct findmatch(PyObject* str,PyObject* abbrev, char *mmode)
 static PyMethodDef fuzzycomt_funcs[] = {
     {"match",(PyCFunction)fuzzycomt_match,METH_NOARGS,NULL},
     { "match", fuzzycomt_match, METH_VARARGS, NULL },
+    {"sorted_match_list",(PyCFunction)fuzzycomt_sorted_match_list,METH_NOARGS,NULL},
+    { "sorted_match_list", fuzzycomt_sorted_match_list, METH_VARARGS, NULL },
     {NULL}
 };
 

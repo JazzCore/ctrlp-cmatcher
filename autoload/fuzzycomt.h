@@ -49,3 +49,5 @@ returnstruct findmatch(PyObject* str, PyObject* abbrev, char *mmode);
 void getLineMatches(PyObject* paths, PyObject* abbrev,returnstruct matches[], char *mode);
 
 PyObject* fuzzycomt_match(PyObject* self, PyObject* args);
+
+PyObject* fuzzycomt_sorted_match_list(PyObject* self, PyObject* args);
