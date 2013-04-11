@@ -189,7 +189,6 @@ double recursive_match(matchinfo_t *m,  // sharable meta-data
     return (score > seen_score) ? score : seen_score;
 }
 
-
 PyObject* fuzzycomt_match(PyObject* self, PyObject* args)
 {
     PyObject *paths, *abbrev, *returnlist;
@@ -213,10 +212,16 @@ PyObject* fuzzycomt_match(PyObject* self, PyObject* args)
 
     returnstruct matches[PyList_Size(paths)];
 
+
+    if ( (limit > PyList_Size(paths)) || (limit == 0) ) {
+        limit = PyList_Size(paths);
+    }
+
     if ( PyString_Size(abbrev) == 0)
     {
         // if string is empty - just return first (:param limit) lines
         PyObject *initlist;
+
         initlist = PyList_GetSlice(paths,0,limit);
         return initlist;
     }
