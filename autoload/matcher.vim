@@ -35,9 +35,8 @@ if ispath and crfile:
     pass
 
 matchlist = fuzzycomt.match(lines, searchinp, limit, mmode)
-vim.command('let matchlist = %s' % matchlist)
 EOF
-retu matchlist
+retu pyeval("matchlist")
 endf
 
 fu! s:highlight(input, mmode, regex)
