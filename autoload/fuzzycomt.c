@@ -256,8 +256,9 @@ PyObject* fuzzycomt_match(PyObject* self, PyObject* args)
 PyObject* fuzzycomt_sorted_match_list(PyObject* self, PyObject* args)
 {
     PyObject *paths, *abbrev, *returnlist;
+    Py_ssize_t limit;
     char *mmode;
-    if (!PyArg_ParseTuple(args, "OOs", &paths, &abbrev, &mmode)) {
+    if (!PyArg_ParseTuple(args, "OOns", &paths, &abbrev, &limit, &mmode)) {
        return NULL;
     }
     returnlist = PyList_New(0);
@@ -276,10 +277,16 @@ PyObject* fuzzycomt_sorted_match_list(PyObject* self, PyObject* args)
     returnstruct matches[PyList_Size(paths)];
 
 
+    if ( (limit > PyList_Size(paths)) || (limit == 0) ) {
+        limit = PyList_Size(paths);
+    }
+
     if ( PyString_Size(abbrev) == 0)
     {
-        PyObject *initlist = PyList_New(0);
+        // if string is empty - just return first (:param limit) lines
+        PyObject *initlist;
 
+        initlist = PyList_GetSlice(paths,0,limit);
         return initlist;
     }
     else
