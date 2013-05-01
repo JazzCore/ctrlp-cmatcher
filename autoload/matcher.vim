@@ -108,16 +108,9 @@ fu! matcher#cmatch(lines,input,limit,mmode, ispath, crfile, regex)
     en
 
     let matchlist = s:cmatcher(a:lines,a:input,a:limit,a:mmode, a:ispath, a:crfile, a:regex)
-    let array = []
-
-    " Show only lines where we matched something ( value > 0 )
-    for line in matchlist
-      "This is needed to fix \\ in paths on Windows
-      cal add(array, substitute(line,'\\\\','\\','g'))
-    endfor
   en
 
   cal s:highlight(a:input, a:mmode, a:regex)
 
-  retu array
+  retu matchlist
 endf
