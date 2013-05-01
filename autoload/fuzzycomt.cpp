@@ -129,6 +129,7 @@ boost::python::list FilterAndSortMultiEncodedCandidates(
   const boost::python::list &candidates,
   const std::string &query ) {
 
+  // TODO add modes back.
   boost::python::list filtered_candidates;
   int num_candidates = len( candidates );
   std::vector< Match > matches;
@@ -169,7 +170,7 @@ boost::python::list FilterAndSortMultiEncodedCandidates(
 
 BOOST_PYTHON_MODULE(fuzzycomt)
 {
-  def( "FilterAndSortCandidates", FilterAndSortMultiEncodedCandidates);
+  def( "sorted_match_list", FilterAndSortMultiEncodedCandidates);
 }
 
 

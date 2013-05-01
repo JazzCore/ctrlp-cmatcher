@@ -10,4 +10,4 @@ To build on Windows:
     ```bash
     bjam toolset=msvc link=static threading=multi release stage --with-python
     ```
-4. Make a VS project. add `C:\boost153` and `C:\Python27\include` to includes and `C:\boost153\stage\lib` and `C:\Python27\libs` to libraries paths. Switch General->Configuration Type to dll and output extension to pyd.
+4. Make a VS project. Name of VS project must patch a name from C++ source ( fuzzycomt ). add `C:\boost153` and `C:\Python27\include` to includes and `C:\boost153\stage\lib` and `C:\Python27\libs` to libraries paths. Switch General->Configuration Type to dll and output extension to pyd.
