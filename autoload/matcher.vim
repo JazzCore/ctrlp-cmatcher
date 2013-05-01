@@ -34,7 +34,7 @@ if ispath and crfile:
   except ValueError:
     pass
 
-matchlist = fuzzycomt.match(lines, searchinp, limit, mmode)
+matchlist = fuzzycomt.sorted_match_list(lines, searchinp, limit, mmode)
 EOF
 retu pyeval("matchlist")
 endf
@@ -112,10 +112,8 @@ fu! matcher#cmatch(lines,input,limit,mmode, ispath, crfile, regex)
 
     " Show only lines where we matched something ( value > 0 )
     for line in matchlist
-      if line['value'] > 0
-        "This is needed to fix \\ in paths on Windows
-        cal add(array, substitute(line['line'],'\\\\','\\','g'))
-      endif
+      "This is needed to fix \\ in paths on Windows
+      cal add(array, substitute(line,'\\\\','\\','g'))
     endfor
   en
 
