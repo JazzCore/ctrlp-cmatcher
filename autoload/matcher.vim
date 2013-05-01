@@ -34,7 +34,10 @@ if ispath and crfile:
   except ValueError:
     pass
 
-matchlist = fuzzycomt.sorted_match_list(lines, searchinp, limit, mmode)
+try:
+  matchlist = fuzzycomt.sorted_match_list(lines, searchinp, limit, mmode)
+except:
+  matchlist = []
 EOF
 retu pyeval("matchlist")
 endf
