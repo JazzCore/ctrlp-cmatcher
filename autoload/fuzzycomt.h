@@ -22,32 +22,34 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <Python.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
-
-typedef struct
-{ 
-    PyObject *str;					// Python object with file path
-    double  score;					// score of string
-} returnstruct;
+#include <boost/python.hpp>
+#include <string>
 
 typedef struct
 {
-    char    *str_p;                 // pointer to string to be searched
-    long    str_len;                // length of same
-    char    *abbrev_p;              // pointer to search string (abbreviation)
-    long    abbrev_len;             // length of same
-    double  max_score_per_char;
-    int     dot_file;               // boolean: true if str is a dot-file
-} matchinfo_t;
+  std::string str;           // Python object with file path
+  double score;              // score of string
+} Match;
 
-returnstruct findmatch(PyObject* str, PyObject* abbrev, char *mmode);
+typedef struct
+{
+  std::string str;           // string to be searched
+  long str_len;              // length of same
+  std::string query;         // query string
+  long query_len;            // length of same
+  double max_score_per_char;
+  int is_dot_file;           // boolean: true if str is a dot-file
+} MatchObject;
 
-void getLineMatches(PyObject* paths, PyObject* abbrev,returnstruct matches[], char *mode);
+double CalculateMatchScore(
+  MatchObject *m,            // sharable meta-data
+  long str_index,            // where in the path string to start
+  long query_index,          // where in the search string to start
+  long last_matched_index,   // location of last matched character
+  double score);             // cumulative score so far
 
-PyObject* fuzzycomt_match(PyObject* self, PyObject* args);
+bool CompareMatchScore(Match a_val, Match b_val);
 
-PyObject* fuzzycomt_sorted_match_list(PyObject* self, PyObject* args);
+boost::python::list FilterAndSortMultiEncodedCandidates(
+  const boost::python::list &candidates,
+  const std::string &query );
