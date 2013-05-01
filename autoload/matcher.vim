@@ -14,7 +14,7 @@ fu! s:matchfname(item, pat)
 	retu match(parts[-1], a:pat)
 endf
 
-fu! s:cmatcher(lines,input,limit,mmode, ispath, crfile, regex)
+fu! s:cmatcher(lines,input,limit,mmode, ispath, crfile)
 python << EOF
 import vim
 import re
@@ -25,8 +25,6 @@ limit = int(vim.eval('a:limit'))
 mmode = vim.eval('a:mmode')
 ispath = int(vim.eval('a:ispath'))
 crfile = vim.eval('a:crfile')
-#TODO fallback to ctrlp matching?
-regex = vim.eval('a:regex')
 
 if ispath and crfile:
   try:
@@ -110,7 +108,7 @@ fu! matcher#cmatch(lines,input,limit,mmode, ispath, crfile, regex)
       retu array
     en
 
-    let matchlist = s:cmatcher(a:lines,a:input,a:limit,a:mmode, a:ispath, a:crfile, a:regex)
+    let matchlist = s:cmatcher(a:lines,a:input,a:limit,a:mmode, a:ispath, a:crfile)
   en
 
   cal s:highlight(a:input, a:mmode, a:regex)
