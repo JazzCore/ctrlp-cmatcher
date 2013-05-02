@@ -42,7 +42,7 @@ There no real drawbacks, but i need to point out some things that may not work a
 
       First of all, make sure that you have ``python`` in your ``%PATH%``.
 
-      Also you will need MinGW compiler suit installed. Dont forget to add ``C:\MinGW\bin`` to your ``%PATH%``.
+      Also you will need MinGW compiler suite installed. Dont forget to add ``C:\MinGW\bin`` to your ``%PATH%``.
 
       Then go to ``ctrlp-cmatcher\autoload`` dir and run:
 
