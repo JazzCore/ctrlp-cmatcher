@@ -36,7 +36,7 @@ void getLineMatches(PyObject* paths, PyObject* abbrev,returnstruct matches[], ch
     }
 }
 
-char *strdup (const char *s) {
+char *strduplicate (const char *s) {
     char *d = malloc (strlen (s) + 1);   // Space for length plus nul
     if (d == NULL) return NULL;          // No memory
     strcpy (d,s);                        // Copy the characters
@@ -47,7 +47,7 @@ char *slashsplit(char *line)
 {
     char *pch, *linedup, *fname;
     // we need to create a copy of input string because strtok() changes string while splitting. Need to call free() when linedup is not needed.
-    linedup = strdup(line);
+    linedup = strduplicate(line);
 
     pch = strtok(linedup, "/");
 
@@ -58,7 +58,7 @@ char *slashsplit(char *line)
     }
 
     // We need to get a copy of a filename because fname is a pointer to the start of filename in linedup string which will be free'd. We need to call free() when return value of func will not be needed.
-    char *retval = strdup(fname);
+    char *retval = strduplicate(fname);
     free(linedup);
 
    return retval; 
@@ -322,7 +322,7 @@ returnstruct findmatch(PyObject* str,PyObject* abbrev, char *mmode)
     // string that must not be changed.
     // We will free() it later
     char *workstr;
-    workstr = strdup(PyString_AsString(str));
+    workstr = strduplicate(PyString_AsString(str));
 
     // Replace all backslashes
     for (int i = 0; i < strlen(workstr); i++) {
