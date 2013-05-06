@@ -39,9 +39,6 @@ endf
 
 fu! s:cmatcher(lines,input,limit,mmode, ispath, crfile)
 python << EOF
-import vim
-import re
-import fuzzycomt
 lines = vim.eval('a:lines')
 searchinp = vim.eval('a:input')
 limit = int(vim.eval('a:limit'))
