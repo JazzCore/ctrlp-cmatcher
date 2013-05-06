@@ -20,6 +20,14 @@ else
   \"endfunction"
 endif
 
+let s:script_folder_path = escape( expand( '<sfile>:p:h' ), '\' )
+python << ImportEOF
+import sys, os, vim
+sys.path.insert( 0, os.path.abspath( vim.eval('s:script_folder_path' ) ) )
+import fuzzycomt
+sys.path.pop(0)
+ImportEOF
+
 fu! s:matchtabs(item, pat)
   retu match(split(a:item, '\t\+')[0], a:pat)
 endf
