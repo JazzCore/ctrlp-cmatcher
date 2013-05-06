@@ -29,15 +29,15 @@ sys.path.pop(0)
 ImportEOF
 
 fu! s:matchtabs(item, pat)
-  retu match(split(a:item, '\t\+')[0], a:pat)
+  return match(split(a:item, '\t\+')[0], a:pat)
 endf
 
 fu! s:matchfname(item, pat)
   let parts = split(a:item, '[\/]\ze[^\/]\+$')
-  retu match(parts[-1], a:pat)
+  return match(parts[-1], a:pat)
 endf
 
-fu! s:cmatcher(lines,input,limit,mmode, ispath, crfile)
+fu! s:cmatcher(lines, input, limit, mmode, ispath, crfile)
 python << EOF
 lines = vim.eval('a:lines')
 searchinp = vim.eval('a:input')
@@ -57,13 +57,12 @@ try:
 except:
   matchlist = []
 EOF
-retu s:pyeval("matchlist")
+return s:pyeval("matchlist")
 endf
 
 fu! s:highlight(input, mmode, regex)
     " highlight matches
     cal clearmatches()
-      endfor
     if a:regex
       let pat = ""
       if a:mmode == "filename-only"
@@ -86,7 +85,7 @@ fu! s:highlight(input, mmode, regex)
     cal matchadd('CtrlPLinePre', '^>')
 endf
 
-fu! matcher#cmatch(lines,input,limit,mmode, ispath, crfile, regex)
+fu! matcher#cmatch(lines, input, limit, mmode, ispath, crfile, regex)
   if a:input == ''
     " Clear matches, that left from previous matches
     cal clearmatches()
@@ -96,21 +95,20 @@ fu! matcher#cmatch(lines,input,limit,mmode, ispath, crfile, regex)
     let array = a:lines[0:a:limit]
     if a:ispath && !empty(a:crfile)
       cal remove(array, index(array, a:crfile))
-
-    retu array
     en
+    return array
   el
     if a:regex
       let array = []
       let func = a:mmode == "filename-only" ? 's:matchfname' : 'match'
       for item in a:lines
         if call(func, [item, a:input]) >= 0
-          cal add(array,item)
+          cal add(array, item)
         endif
       endfor
-	  cal sort(array, ctrlp#call('s:mixedsort'))
+      cal sort(array, ctrlp#call('s:mixedsort'))
       cal s:highlight(a:input, a:mmode, a:regex)
-      retu array
+      return array
     endif
     " use built-in matcher if mmode set to match until first tab ( in other case
     " tag.vim doesnt work
@@ -119,19 +117,19 @@ fu! matcher#cmatch(lines,input,limit,mmode, ispath, crfile, regex)
       " call ctrlp.vim function to get proper input pattern
       let pat = ctrlp#call('s:SplitPattern', a:input)
       for item in a:lines
-        if call('s:matchtabs', [item,pat]) >= 0
-          cal add(array,item)
+        if call('s:matchtabs', [item, pat]) >= 0
+          cal add(array, item)
         en
       endfo
       "TODO add highlight
       cal sort(array, ctrlp#call('s:mixedsort'))
-      retu array
+      return array
     en
 
-    let matchlist = s:cmatcher(a:lines,a:input,a:limit,a:mmode, a:ispath, a:crfile)
+    let matchlist = s:cmatcher(a:lines, a:input, a:limit, a:mmode, a:ispath, a:crfile)
   en
 
   cal s:highlight(a:input, a:mmode, a:regex)
 
-  retu matchlist
+  return matchlist
 endf
