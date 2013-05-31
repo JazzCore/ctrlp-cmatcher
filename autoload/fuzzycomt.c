@@ -301,6 +301,8 @@ PyObject* fuzzycomt_sorted_match_list(PyObject* self, PyObject* args)
 
     for (long i = 0, max = PyList_Size(paths); i < max; i++)
     {
+       if (i == limit)
+          break;
         if ( matches[i].score> 0 ) {
             // TODO it retuns non-encoded string. So cyrillic literals arent properly showed.
             // There are PyString_AsDecodedObject, it works in interactive session but it fails
