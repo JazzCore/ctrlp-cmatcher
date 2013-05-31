@@ -1,11 +1,11 @@
 # CtrlP C matching extension
 
-This is a [ctrlp.vim](https://github.com/kien/ctrlp.vim) extension which can be used to get different matching algorithm, written in C language with a small portion of Python (only to access C module).
+This is a [ctrlp.vim][ctrlp] extension which can be used to get different matching algorithm, written in C language with a small portion of Python (only to access C module).
 
-This extension uses an adapted version of [CommandT](https://github.com/wincent/Command-T) matching, big thanks to @wincent!
+This extension uses an adapted version of [CommandT][commandt] matching, big thanks to @wincent!
 
 ## Advantages
-- Matcher, written in C can provide significant speed improvement when working on large projects with 10000+ files, e.g [Metasploit](https://github.com/rapid7/metasploit-framework). Dont forget to set ``g:ctrlp_max_files`` option to 0 or 10000+ if you're working on such projects.
+- Matcher, written in C can provide significant speed improvement when working on large projects with 10000+ files, e.g [Metasploit][metasploit]. Dont forget to set ``g:ctrlp_max_files`` option to 0 or 10000+ if you're working on such projects.
 - In some cases you can get more precise matching results ( e.g. when trying to match exact file name like ``exe.rb``)
 
 ## Drawbacks
@@ -22,6 +22,8 @@ There no real drawbacks, but i need to point out some things that may not work a
     Bundle 'JazzCore/ctrlp-cmatcher'
     ```
 2. Compile C extension.
+  If you are getting any errors on this stage you can try the manual installation guide located [here][manual].
+
   * On Linux:
 
       First, get Python header files. Example for Debian/Ubuntu:
@@ -30,11 +32,11 @@ There no real drawbacks, but i need to point out some things that may not work a
       [sudo] apt-get install python-dev
       ```
 
-      Then compile C module and install it as a Python module:
+      Then run the installation script:
 
       ```bash
-      cd ~/.vim/bundle/ctrlp-cmatcher/autoload/
-      [sudo] python setup.py install
+      cd ~/.vim/bundle/ctrlp-cmatcher/
+      ./install_linux.sh
       ```
   * On Windows:
 
@@ -44,11 +46,10 @@ There no real drawbacks, but i need to point out some things that may not work a
 
       Also you will need MinGW compiler suite installed. Dont forget to add ``C:\MinGW\bin`` to your ``%PATH%``.
 
-      Then go to ``ctrlp-cmatcher\autoload`` dir and run:
+      Then go to ``ctrlp-cmatcher`` dir and run the installation script:
 
       ```bash
-      python setup.py build --compiler=mingw32
-      python setup.py install
+      install_windows.bat
       ```
 
       If you are getting __gcc: error: unrecognized command line option '-mno-cygwin'__ error, follow [this fix](http://stackoverflow.com/questions/6034390/compiling-with-cython-and-mingw-produces-gcc-error-unrecognized-command-line-o).
@@ -62,3 +63,8 @@ There no real drawbacks, but i need to point out some things that may not work a
   ```
 
 4. All done!
+
+[ctrlp]: https://github.com/kien/ctrlp.vim
+[commandt]: https://github.com/wincent/Command-T
+[metasploit]: https://github.com/rapid7/metasploit-framework
+[manual]: https://github.com/JazzCore/ctrlp-cmatcher/wiki/Manual-installation
