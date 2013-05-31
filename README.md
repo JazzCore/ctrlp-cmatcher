@@ -2,11 +2,11 @@
 
 This is a [ctrlp.vim](https://github.com/kien/ctrlp.vim) extension which can be used to get different matching algorithm, written in C language with a small portion of Python (only to access C module).
 
-This extension uses an adapted version of [CommandT](https://github.com/wincent/Command-T) matching, big thanks to wincent!
+This extension uses an adapted version of [CommandT](https://github.com/wincent/Command-T) matching, big thanks to @wincent!
 
 ## Advantages
 - Matcher, written in C can provide significant speed improvement when working on large projects with 10000+ files, e.g [Metasploit](https://github.com/rapid7/metasploit-framework). Dont forget to set ``g:ctrlp_max_files`` option to 0 or 10000+ if you're working on such projects.
-- In some cases you can get more precise matching results ( e.g. when matching file names)
+- In some cases you can get more precise matching results ( e.g. when trying to match exact file name like ``exe.rb``)
 
 ## Drawbacks
 
@@ -23,7 +23,7 @@ There no real drawbacks, but i need to point out some things that may not work a
     ```
 2. Compile C extension.
   * On Linux:
-    
+
       First, get Python header files. Example for Debian/Ubuntu:
 
       ```bash
@@ -37,7 +37,7 @@ There no real drawbacks, but i need to point out some things that may not work a
       [sudo] python setup.py install
       ```
   * On Windows:
-    
+
       Installation is similar to Linux version, but it can be more complicated becase of weird errors during compilation.
 
       First of all, make sure that you have ``python`` in your ``%PATH%``.

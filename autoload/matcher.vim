@@ -75,6 +75,7 @@ fu! s:highlight(input, mmode, regex)
     el
       for i in range(len(a:input))
         if a:mmode == "filename-only"
+            "TODO Highlights slightly incorrectly
             let pat = substitute(a:input[i], '\$\@<!$', '\\ze[^\\/]*$', 'g')
             cal matchadd('CtrlPMatch', '\p'.pat)
         el
