@@ -1,8 +1,5 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
-pushd autoload
+cd autoload
 python setup.py build
-pushd build/lib*
-cp fuzzycomt.so ../../
-popd
-popd
+cp build/lib*/fuzzycomt.so .
