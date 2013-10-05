@@ -73,6 +73,7 @@ fu! s:highlight(input, mmode, regex)
       en
       cal matchadd('CtrlPMatch', '\c'.pat)
     el
+      let pat = substitute(a:input, '.\ze.', '\0\\.\\{-}', 'g')
       let previous = ""
       for i in range(len(a:input))
         if a:mmode == "filename-only"
@@ -80,8 +81,9 @@ fu! s:highlight(input, mmode, regex)
           let pat = substitute(a:input[i], '\$\@<!$', '\\ze[^\\/]*$', 'g')
           cal matchadd('CtrlPMatch', '\p'.pat)
         el
-          cal matchadd('CtrlPMatch', '\V\^\.\{-}'.previous.'\zs'.a:input[i].'\ze\.\*\$')
-          let previous = previous.a:input[i].'\.\{-}'
+          let index = i * 7
+          let letter = substitute(pat, '^.\{'.index.'}\zs.', '\\zs\0\\ze', '')
+          cal matchadd('CtrlPMatch', '\V\^\.\*'.letter.'\.\*\$')
         en
       endfor
     en
