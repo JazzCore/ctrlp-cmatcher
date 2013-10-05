@@ -73,13 +73,15 @@ fu! s:highlight(input, mmode, regex)
       en
       cal matchadd('CtrlPMatch', '\c'.pat)
     el
+      let previous = ""
       for i in range(len(a:input))
         if a:mmode == "filename-only"
-            "TODO Highlights slightly incorrectly
-            let pat = substitute(a:input[i], '\$\@<!$', '\\ze[^\\/]*$', 'g')
-            cal matchadd('CtrlPMatch', '\p'.pat)
+          "TODO Highlights slightly incorrectly
+          let pat = substitute(a:input[i], '\$\@<!$', '\\ze[^\\/]*$', 'g')
+          cal matchadd('CtrlPMatch', '\p'.pat)
         el
-            cal matchadd('CtrlPMatch', '\M'.a:input[i])
+          cal matchadd('CtrlPMatch', '\V\^\.\{-}'.previous.'\zs'.a:input[i].'\ze\.\*\$')
+          let previous = previous.a:input[i].'\.\{-}'
         en
       endfor
     en
