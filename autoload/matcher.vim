@@ -83,7 +83,7 @@ fu! s:highlight(input, mmode, regex)
         el
           let index = i * 7
           let letter = substitute(pat, '^.\{'.index.'}\zs.', '\\zs\0\\ze', '')
-          cal matchadd('CtrlPMatch', '\V\^\.\*'.letter.'\(\.\*'.pat.'\)\@!\.\*\$')
+          cal matchadd('CtrlPMatch', '\V\c\^\.\*'.letter.'\(\.\*'.pat.'\)\@!\.\*\$')
         en
       endfor
     en
