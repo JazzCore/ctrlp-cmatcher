@@ -73,6 +73,8 @@ fu! s:highlight(input, mmode, regex)
       en
       cal matchadd('CtrlPMatch', '\c'.pat)
     el
+      " Build a pattern like /a.*b.*c/ from abc (but with .\{-} non-greedy
+      " matchers instead)
       let pat = substitute(a:input, '.\ze.', '\0\\.\\{-}', 'g')
       let previous = ""
       for i in range(len(a:input))
@@ -82,7 +84,15 @@ fu! s:highlight(input, mmode, regex)
           cal matchadd('CtrlPMatch', '\p'.pat)
         el
           let index = i * 7
+          " Surround our current target letter with \zs and \ze so it only
+          " actually matches that one letter, but has all preceding and trailing
+          " letters as well.
           let letter = substitute(pat, '^.\{'.index.'}\zs.', '\\zs\0\\ze', '')
+          " Now we matchadd for each letter, the basic form being:
+          " ^.*\zsx\ze.*$, but with our pattern we built above for the letter,
+          " and a negative lookahead ensuring that we only highlight the last
+          " occurrence of our letters. We also ensure that our matcher is case
+          " insensitive and has 'Very little magic'.
           cal matchadd('CtrlPMatch', '\V\c\^\.\*'.letter.'\(\.\*'.pat.'\)\@!\.\*\$')
         en
       endfor
