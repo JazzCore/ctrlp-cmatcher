@@ -1,5 +1,5 @@
-// Copyright 2010 Wincent Colaiuta. All rights reserved.
-// Additional work by Stanislav Golovanov, 2013.
+// Copyright 2013 Stanislav Golovanov <stgolovanov@gmail.com>
+// Matching algorithm by Wincent Colaiuta, 2010.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -29,9 +29,9 @@
 #include <assert.h>
 
 typedef struct
-{ 
-    PyObject *str;					// Python object with file path
-    double  score;					// score of string
+{
+    PyObject *str;                  // Python object with file path
+    double  score;                  // score of string
 } returnstruct;
 
 typedef struct

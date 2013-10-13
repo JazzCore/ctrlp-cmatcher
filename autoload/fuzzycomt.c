@@ -1,5 +1,5 @@
-// Copyright 2010 Wincent Colaiuta. All rights reserved.
-// Additional work by Stanislav Golovanov, 2013.
+// Copyright 2013 Stanislav Golovanov <stgolovanov@gmail.com>
+// Matching algorithm by Wincent Colaiuta, 2010.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -46,7 +46,8 @@ char *strduplicate (const char *s) {
 char *slashsplit(char *line)
 {
     char *pch, *linedup, *fname;
-    // we need to create a copy of input string because strtok() changes string while splitting. Need to call free() when linedup is not needed.
+    // we need to create a copy of input string because strtok() changes string
+    // while splitting. Need to call free() when linedup is not needed.
     linedup = strduplicate(line);
 
     pch = strtok(linedup, "/");
@@ -57,11 +58,13 @@ char *slashsplit(char *line)
         pch = strtok(NULL, "/");
     }
 
-    // We need to get a copy of a filename because fname is a pointer to the start of filename in linedup string which will be free'd. We need to call free() when return value of func will not be needed.
+    // We need to get a copy of a filename because fname is a pointer to the
+    // start of filename in linedup string which will be free'd. We need to
+    // call free() when return value of func will not be needed.
     char *retval = strduplicate(fname);
     free(linedup);
 
-   return retval; 
+   return retval;
 }
 
 // comparison function for use with qsort
@@ -234,7 +237,7 @@ PyObject* fuzzycomt_match(PyObject* self, PyObject* args)
         qsort(matches, PyList_Size(paths), sizeof(returnstruct),comp_score);
     }
 
-    
+
     for (long i = 0, max = PyList_Size(paths); i < max; i++)
     {
             if (i == limit)
@@ -366,14 +369,15 @@ returnstruct findmatch(PyObject* str,PyObject* abbrev, char *mmode)
     else // normal case
         score = recursive_match(&m, 0, 0, 0, 0.0);
 
-    // need to free memory because strdump() function in slashsplit() uses malloc to allocate memory, otherwise memory will leak
+    // need to free memory because strdump() function in slashsplit() uses
+    // malloc to allocate memory, otherwise memory will leak
     if (strcmp(mmode, "filename-only") == 0) {
         free(m.str_p);
     }
 
     // Free memory after strdup()
     free(workstr);
-    
+
     returnobj.str = str;
     returnobj.score = score;
 

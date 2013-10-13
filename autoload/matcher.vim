@@ -1,9 +1,11 @@
-" =============================================================================
-" File:          autoload/matcher.vim
-" Description:   CtrlP C matching extension
-" Author:        Stanislav Golovanov <stgolovanov@gmail.com>
-" Version:       0.7.3
-" =============================================================================
+" CtrlP C matching extension
+"
+" By: Stanislav Golovanov <stgolovanov@gmail.com>
+"     MaxSt <https://github.com/MaxSt>
+"     Aaron Jensen <aaronjensen@gmail.com>
+"
+" See LICENSE for linensing concerns.
+
 
 " Use pyeval() or py3eval() for newer python versions or fall back to
 " vim.command() if vim version is old
