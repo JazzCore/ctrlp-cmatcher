@@ -37,7 +37,7 @@ void getLineMatches(PyObject* paths, PyObject* abbrev,returnstruct matches[], ch
 }
 
 char *strduplicate (const char *s) {
-    char *d = malloc (strlen (s) + 1)
+    char *d = malloc (strlen (s) + 1);
     if (d == NULL)
        return NULL;
     strcpy (d,s);
