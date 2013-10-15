@@ -36,12 +36,13 @@ typedef struct
 
 typedef struct
 {
-    char    *str_p;                 // pointer to string to be searched
-    long    str_len;                // length of same
-    char    *abbrev_p;              // pointer to search string (abbreviation)
-    long    abbrev_len;             // length of same
+    char    *haystack_p;                 // pointer to string to be searched
+    long    haystack_len;                // length of same
+    char    *needle_p;              // pointer to search string (abbreviation)
+    long    needle_len;             // length of same
     double  max_score_per_char;
     int     dot_file;               // boolean: true if str is a dot-file
+    double  *memo;                  // memoization
 } matchinfo_t;
 
 returnstruct findmatch(PyObject* str, PyObject* abbrev, char *mmode);
