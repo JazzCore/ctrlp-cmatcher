@@ -25,11 +25,9 @@
 #include "float.h"
 #include "fuzzycomt.h"
 
-void getLineMatches(PyObject* paths, PyObject* abbrev,returnstruct matches[], char *mmode)
-{
+void getLineMatches(PyObject* paths, PyObject* abbrev,returnstruct matches[], char *mmode) {
     // iterate over lines and get match score for every line
-    for (long i = 0, max = PyList_Size(paths); i < max; i++)
-    {
+    for (long i = 0, max = PyList_Size(paths); i < max; i++) {
         PyObject* path = PyList_GetItem(paths, i);
         returnstruct match;
         match = findmatch(path, abbrev, mmode);
@@ -45,8 +43,7 @@ char *strduplicate (const char *s) {
     return d;
 }
 
-char *slashsplit(char *line)
-{
+char *slashsplit(char *line) {
     char *pch, *linedup;
     char *fname = "";
 
@@ -73,8 +70,7 @@ char *slashsplit(char *line)
 }
 
 // comparison function for use with qsort
-int comp_alpha(const void *a, const void *b)
-{
+int comp_alpha(const void *a, const void *b) {
     returnstruct a_val = *(returnstruct *)a;
     returnstruct b_val = *(returnstruct *)b;
 
@@ -84,25 +80,24 @@ int comp_alpha(const void *a, const void *b)
     long b_len = PyString_Size(b_val.str);
 
     int order = 0;
-    if (a_len > b_len)
-    {
+    if (a_len > b_len) {
         order = strncmp(a_p, b_p, b_len);
         if (order == 0)
             order = 1; // shorter string (b) wins
     }
-    else if (a_len < b_len)
-    {
+    else if (a_len < b_len) {
         order = strncmp(a_p, b_p, a_len);
         if (order == 0)
             order = -1; // shorter string (a) wins
     }
-    else
+    else {
         order = strncmp(a_p, b_p, a_len);
+    }
+
     return order;
 }
 
-int comp_score(const void *a, const void *b)
-{
+int comp_score(const void *a, const void *b) {
     returnstruct a_val = *(returnstruct *)a;
     returnstruct b_val = *(returnstruct *)b;
     double a_score = a_val.score;
@@ -143,10 +138,11 @@ double recursive_match(matchinfo_t *m,    // sharable meta-data
         for (long j = haystack_idx;
              j <= m->haystack_len - (m->needle_len - i);
              j++, haystack_idx++) {
+
             char d = m->haystack_p[j];
             if (d == '.') {
                 if (j == 0 || m->haystack_p[j - 1] == '/') {
-                    m->dot_file = 1;        // this is a dot-file
+                    m->dot_file = 1; // this is a dot-file
                 }
             } else if (d >= 'A' && d <= 'Z') {
                 d += 'a' - 'A'; // add 32 to downcase
@@ -209,8 +205,7 @@ memoize:
     return score;
 }
 
-PyObject* fuzzycomt_match(PyObject* self, PyObject* args)
-{
+PyObject* fuzzycomt_match(PyObject* self, PyObject* args) {
     PyObject *paths, *abbrev, *returnlist;
     Py_ssize_t limit;
     char *mmode;
@@ -237,16 +232,14 @@ PyObject* fuzzycomt_match(PyObject* self, PyObject* args)
         limit = PyList_Size(paths);
     }
 
-    if ( PyString_Size(abbrev) == 0)
-    {
+    if ( PyString_Size(abbrev) == 0) {
         // if string is empty - just return first (:param limit) lines
         PyObject *initlist;
 
         initlist = PyList_GetSlice(paths,0,limit);
         return initlist;
     }
-    else
-    {
+    else {
         // find matches and place them into matches array.
         getLineMatches(paths,abbrev, matches, mmode);
 
@@ -255,8 +248,7 @@ PyObject* fuzzycomt_match(PyObject* self, PyObject* args)
     }
 
 
-    for (long i = 0, max = PyList_Size(paths); i < max; i++)
-    {
+    for (long i = 0, max = PyList_Size(paths); i < max; i++) {
             if (i == limit)
                 break;
             // generate python dicts { 'line' : line, 'value' : value } and place dicts to list
@@ -273,8 +265,7 @@ PyObject* fuzzycomt_match(PyObject* self, PyObject* args)
     return returnlist;
 }
 
-PyObject* fuzzycomt_sorted_match_list(PyObject* self, PyObject* args)
-{
+PyObject* fuzzycomt_sorted_match_list(PyObject* self, PyObject* args) {
     PyObject *paths, *abbrev, *returnlist;
     Py_ssize_t limit;
     char *mmode;
@@ -301,16 +292,14 @@ PyObject* fuzzycomt_sorted_match_list(PyObject* self, PyObject* args)
         limit = PyList_Size(paths);
     }
 
-    if ( PyString_Size(abbrev) == 0)
-    {
+    if ( PyString_Size(abbrev) == 0) {
         // if string is empty - just return first (:param limit) lines
         PyObject *initlist;
 
         initlist = PyList_GetSlice(paths,0,limit);
         return initlist;
     }
-    else
-    {
+    else {
         // find matches and place them into matches array.
         getLineMatches(paths,abbrev, matches, mmode);
 
@@ -319,8 +308,7 @@ PyObject* fuzzycomt_sorted_match_list(PyObject* self, PyObject* args)
     }
 
 
-    for (long i = 0, max = PyList_Size(paths); i < max; i++)
-    {
+    for (long i = 0, max = PyList_Size(paths); i < max; i++) {
        if (i == limit)
           break;
         if ( matches[i].score> 0 ) {

@@ -28,21 +28,19 @@
 #include <string.h>
 #include <assert.h>
 
-typedef struct
-{
-    PyObject *str;                  // Python object with file path
-    double  score;                  // score of string
+typedef struct {
+    PyObject *str;                       // Python object with file path
+    double  score;                       // score of string
 } returnstruct;
 
-typedef struct
-{
+typedef struct {
     char    *haystack_p;                 // pointer to string to be searched
     long    haystack_len;                // length of same
-    char    *needle_p;              // pointer to search string (abbreviation)
-    long    needle_len;             // length of same
+    char    *needle_p;                   // pointer to search string (abbreviation)
+    long    needle_len;                  // length of same
     double  max_score_per_char;
-    int     dot_file;               // boolean: true if str is a dot-file
-    double  *memo;                  // memoization
+    int     dot_file;                    // boolean: true if str is a dot-file
+    double  *memo;                       // memoization
 } matchinfo_t;
 
 returnstruct findmatch(PyObject* str, PyObject* abbrev, char *mmode);
