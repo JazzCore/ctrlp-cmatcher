@@ -93,7 +93,7 @@ fu! s:highlight(input, mmode, regex)
       " matchers instead)
       let pat = join(chars, '.\{-}')
       " Ensure we match the last version of our pattern
-      let ending = '\(.*'.pat.'\)\@!.*$'
+      let ending = '\(.*'.pat.'\)\@!'
       " Case insensitive
       let beginning = '\c^.*'
       if a:mmode == "filename-only"
