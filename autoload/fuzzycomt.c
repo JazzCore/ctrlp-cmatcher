@@ -30,7 +30,7 @@ void getLineMatches(PyObject* paths, PyObject* abbrev,returnstruct matches[], ch
     for (long i = 0, max = PyList_Size(paths); i < max; i++) {
         PyObject* path = PyList_GetItem(paths, i);
         returnstruct match;
-        match = findmatch(path, abbrev, mmode);
+        match = find_match(path, abbrev, mmode);
         matches[i] = match;
     }
 }
@@ -323,7 +323,7 @@ PyObject* fuzzycomt_sorted_match_list(PyObject* self, PyObject* args) {
 }
 
 
-returnstruct findmatch(PyObject* str,PyObject* abbrev, char *mmode)
+returnstruct find_match(PyObject* str,PyObject* abbrev, char *mmode)
 {
     returnstruct returnobj;
 
