@@ -24,7 +24,7 @@ There no real drawbacks, but i need to point out some things that may not work a
 2. Compile C extension.
   If you are getting any errors on this stage you can try the manual installation guide located [here][manual].
 
-  * On Linux:
+  * On Linux/Unix systems:
 
       First, get Python header files. Example for Debian/Ubuntu:
 
@@ -36,7 +36,7 @@ There no real drawbacks, but i need to point out some things that may not work a
 
       ```bash
       cd ~/.vim/bundle/ctrlp-cmatcher/
-      ./install_linux.sh
+      ./install.sh
       ```
 
   * On OS X (tested with 10.9.2 Mavericks):
