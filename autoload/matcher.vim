@@ -55,7 +55,8 @@ if ispath and crfile:
     pass
 
 try:
-  matchlist = fuzzycomt.sorted_match_list(lines, searchinp, limit, mmode)
+  # TODO we should support smartcase. Needs some fixing on matching side
+  matchlist = fuzzycomt.sorted_match_list(lines, searchinp.lower(), limit, mmode)
 except:
   matchlist = []
 EOF
