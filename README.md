@@ -52,9 +52,9 @@ There no real drawbacks, but i need to point out some things that may not work a
 
       ```bash
       cd ~/.vim/bundle/ctrlp-cmatcher/
-      ./install_linux.sh
+      ./install.sh
       ```
-  
+
   * On Windows:
 
       Installation is similar to Linux version, but it can be more complicated becase of weird errors during compilation.
