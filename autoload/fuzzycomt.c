@@ -25,19 +25,22 @@
 #include "float.h"
 #include "fuzzycomt.h"
 
-void getLineMatches(PyObject* paths, PyObject* abbrev,returnstruct matches[], char *mmode) {
+// Forward declaration for ctrlp_get_line_matches
+returnstruct ctrlp_find_match(PyObject* str, PyObject* abbrev, char *mmode);
+
+void ctrlp_get_line_matches(PyObject* paths, PyObject* abbrev,returnstruct matches[], char *mmode) {
     int i;
     int max;
     // iterate over lines and get match score for every line
     for (i = 0, max = PyList_Size(paths); i < max; i++) {
         PyObject* path = PyList_GetItem(paths, i);
         returnstruct match;
-        match = find_match(path, abbrev, mmode);
+        match = ctrlp_find_match(path, abbrev, mmode);
         matches[i] = match;
     }
 }
 
-char *strduplicate (const char *s) {
+char *strduplicate(const char *s) {
     char *d = malloc (strlen (s) + 1);
     if (d == NULL)
        return NULL;
@@ -72,7 +75,7 @@ char *slashsplit(char *line) {
 }
 
 // comparison function for use with qsort
-int comp_alpha(const void *a, const void *b) {
+int ctrlp_comp_alpha(const void *a, const void *b) {
     returnstruct a_val = *(returnstruct *)a;
     returnstruct b_val = *(returnstruct *)b;
 
@@ -99,7 +102,7 @@ int comp_alpha(const void *a, const void *b) {
     return order;
 }
 
-int comp_score(const void *a, const void *b) {
+int ctrlp_comp_score_alpha(const void *a, const void *b) {
     returnstruct a_val = *(returnstruct *)a;
     returnstruct b_val = *(returnstruct *)b;
     double a_score = a_val.score;
@@ -109,10 +112,10 @@ int comp_score(const void *a, const void *b) {
     else if (a_score < b_score)
         return 1;  // b scores higher, a should appear later
     else
-        return comp_alpha(a, b);
+        return ctrlp_comp_alpha(a, b);
 }
 
-double recursive_match(matchinfo_t *m,    // sharable meta-data
+double ctrlp_recursive_match(matchinfo_t *m,    // sharable meta-data
                        long haystack_idx, // where in the path string to start
                        long needle_idx,   // where in the needle string to start
                        long last_idx,     // location of last matched character
@@ -187,7 +190,7 @@ double recursive_match(matchinfo_t *m,    // sharable meta-data
                 if (++j < m->haystack_len) {
                     // bump cursor one char to the right and
                     // use recursion to try and find a better match
-                    double sub_score = recursive_match(m, j, i, last_idx, score);
+                    double sub_score = ctrlp_recursive_match(m, j, i, last_idx, score);
                     if (sub_score > seen_score)
                         seen_score = sub_score;
                 }
@@ -211,7 +214,7 @@ memoize:
     return score;
 }
 
-PyObject* fuzzycomt_match(PyObject* self, PyObject* args) {
+PyObject* ctrlp_fuzzycomt_match(PyObject* self, PyObject* args) {
     PyObject *paths, *abbrev, *returnlist;
     Py_ssize_t limit;
     char *mmode;
@@ -250,10 +253,10 @@ PyObject* fuzzycomt_match(PyObject* self, PyObject* args) {
     }
     else {
         // find matches and place them into matches array.
-        getLineMatches(paths,abbrev, matches, mmode);
+        ctrlp_get_line_matches(paths,abbrev, matches, mmode);
 
         // sort array of struct by struct.score key
-        qsort(matches, PyList_Size(paths), sizeof(returnstruct),comp_score);
+        qsort(matches, PyList_Size(paths), sizeof(returnstruct),ctrlp_comp_score_alpha);
     }
 
 
@@ -274,7 +277,7 @@ PyObject* fuzzycomt_match(PyObject* self, PyObject* args) {
     return returnlist;
 }
 
-PyObject* fuzzycomt_sorted_match_list(PyObject* self, PyObject* args) {
+PyObject* ctrlp_fuzzycomt_sorted_match_list(PyObject* self, PyObject* args) {
     PyObject *paths, *abbrev, *returnlist;
     Py_ssize_t limit;
     char *mmode;
@@ -313,10 +316,10 @@ PyObject* fuzzycomt_sorted_match_list(PyObject* self, PyObject* args) {
     }
     else {
         // find matches and place them into matches array.
-        getLineMatches(paths,abbrev, matches, mmode);
+        ctrlp_get_line_matches(paths,abbrev, matches, mmode);
 
         // sort array of struct by struct.score key
-        qsort(matches, PyList_Size(paths), sizeof(returnstruct),comp_score);
+        qsort(matches, PyList_Size(paths), sizeof(returnstruct),ctrlp_comp_score_alpha);
     }
 
 
@@ -335,9 +338,9 @@ PyObject* fuzzycomt_sorted_match_list(PyObject* self, PyObject* args) {
 }
 
 
-returnstruct find_match(PyObject* str,PyObject* abbrev, char *mmode)
+returnstruct ctrlp_find_match(PyObject* str,PyObject* abbrev, char *mmode)
 {
-	long i, max;
+    long i, max;
     double score;
     returnstruct returnobj;
 
@@ -393,7 +396,7 @@ returnstruct find_match(PyObject* str,PyObject* abbrev, char *mmode)
             memo[i] = DBL_MAX;
         m.memo = memo;
 
-        score = recursive_match(&m, 0, 0, 0, 0.0);
+        score = ctrlp_recursive_match(&m, 0, 0, 0, 0.0);
     }
 
     // need to free memory because strdump() function in slashsplit() uses
@@ -412,10 +415,10 @@ returnstruct find_match(PyObject* str,PyObject* abbrev, char *mmode)
 }
 
 static PyMethodDef fuzzycomt_funcs[] = {
-    {"match",(PyCFunction)fuzzycomt_match,METH_NOARGS,NULL},
-    { "match", fuzzycomt_match, METH_VARARGS, NULL },
-    {"sorted_match_list",(PyCFunction)fuzzycomt_sorted_match_list,METH_NOARGS,NULL},
-    { "sorted_match_list", fuzzycomt_sorted_match_list, METH_VARARGS, NULL },
+    {"match",(PyCFunction)ctrlp_fuzzycomt_match,METH_NOARGS,NULL},
+    { "match", ctrlp_fuzzycomt_match, METH_VARARGS, NULL },
+    {"sorted_match_list",(PyCFunction)ctrlp_fuzzycomt_sorted_match_list,METH_NOARGS,NULL},
+    { "sorted_match_list", ctrlp_fuzzycomt_sorted_match_list, METH_VARARGS, NULL },
     {NULL}
 };
 

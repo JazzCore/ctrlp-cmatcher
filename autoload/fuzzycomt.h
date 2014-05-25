@@ -43,7 +43,7 @@ typedef struct {
     double  *memo;                       // memoization
 } matchinfo_t;
 
-returnstruct find_match(PyObject* str, PyObject* abbrev, char *mmode);
+returnstruct findmatch(PyObject* str, PyObject* abbrev, char *mmode);
 
 void getLineMatches(PyObject* paths, PyObject* abbrev,returnstruct matches[], char *mode);
 
