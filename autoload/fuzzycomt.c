@@ -26,8 +26,10 @@
 #include "fuzzycomt.h"
 
 void getLineMatches(PyObject* paths, PyObject* abbrev,returnstruct matches[], char *mmode) {
+    int i;
+    int max;
     // iterate over lines and get match score for every line
-    for (long i = 0, max = PyList_Size(paths); i < max; i++) {
+    for (i = 0, max = PyList_Size(paths); i < max; i++) {
         PyObject* path = PyList_GetItem(paths, i);
         returnstruct match;
         match = find_match(path, abbrev, mmode);
@@ -117,6 +119,9 @@ double recursive_match(matchinfo_t *m,    // sharable meta-data
                        double score)      // cumulative score so far
 {
     double seen_score = 0;  // remember best score seen via recursion
+    long i, j, distance;
+    int found;
+    double score_for_char;
 
     // do we have a memoized result we can return?
     double memoized = m->memo[needle_idx * m->needle_len + haystack_idx];
@@ -129,13 +134,13 @@ double recursive_match(matchinfo_t *m,    // sharable meta-data
         goto memoize;
     }
 
-    for (long i = needle_idx; i < m->needle_len; i++) {
+    for (i = needle_idx; i < m->needle_len; i++) {
         char c = m->needle_p[i];
-        int found = 0;
+        found = 0;
 
         // similar to above, we'll stop iterating when we know we're too close
         // to the end of the string to possibly match
-        for (long j = haystack_idx;
+        for (j = haystack_idx;
              j <= m->haystack_len - (m->needle_len - i);
              j++, haystack_idx++) {
 
@@ -152,8 +157,8 @@ double recursive_match(matchinfo_t *m,    // sharable meta-data
                 found = 1;
 
                 // calculate score
-                double score_for_char = m->max_score_per_char;
-                long distance = j - last_idx;
+                score_for_char = m->max_score_per_char;
+                distance = j - last_idx;
 
                 if (distance > 1) {
                     double factor = 1.0;
@@ -209,6 +214,9 @@ PyObject* fuzzycomt_match(PyObject* self, PyObject* args) {
     PyObject *paths, *abbrev, *returnlist;
     Py_ssize_t limit;
     char *mmode;
+    int i;
+    int max;
+
     if (!PyArg_ParseTuple(args, "OOns", &paths, &abbrev, &limit, &mmode)) {
        return NULL;
     }
@@ -248,7 +256,7 @@ PyObject* fuzzycomt_match(PyObject* self, PyObject* args) {
     }
 
 
-    for (long i = 0, max = PyList_Size(paths); i < max; i++) {
+    for (i = 0, max = PyList_Size(paths); i < max; i++) {
             if (i == limit)
                 break;
             // generate python dicts { 'line' : line, 'value' : value } and place dicts to list
@@ -269,6 +277,9 @@ PyObject* fuzzycomt_sorted_match_list(PyObject* self, PyObject* args) {
     PyObject *paths, *abbrev, *returnlist;
     Py_ssize_t limit;
     char *mmode;
+    int i;
+    int max;
+
     if (!PyArg_ParseTuple(args, "OOns", &paths, &abbrev, &limit, &mmode)) {
        return NULL;
     }
@@ -308,7 +319,7 @@ PyObject* fuzzycomt_sorted_match_list(PyObject* self, PyObject* args) {
     }
 
 
-    for (long i = 0, max = PyList_Size(paths); i < max; i++) {
+    for (i = 0, max = PyList_Size(paths); i < max; i++) {
        if (i == limit)
           break;
         if ( matches[i].score> 0 ) {
@@ -325,6 +336,8 @@ PyObject* fuzzycomt_sorted_match_list(PyObject* self, PyObject* args) {
 
 returnstruct find_match(PyObject* str,PyObject* abbrev, char *mmode)
 {
+	long i, max;
+    double score;
     returnstruct returnobj;
 
     // Make a copy of input string to replace all backslashes.
@@ -335,7 +348,7 @@ returnstruct find_match(PyObject* str,PyObject* abbrev, char *mmode)
     workstr = strduplicate(PyString_AsString(str));
 
     // Replace all backslashes
-    for (int i = 0; i < strlen(workstr); i++) {
+    for (i = 0; i < strlen(workstr); i++) {
         if (workstr[i] == '\\') {
             workstr[i] = '/';
         }
@@ -358,21 +371,24 @@ returnstruct find_match(PyObject* str,PyObject* abbrev, char *mmode)
 
 
     // calculate score
-    double score = 1.0;
-    if (m.needle_len == 0) { // special case for zero-length search string
-            for (long i = 0; i < m.haystack_len; i++) {
-                char c = m.haystack_p[i];
-                if (c == '.' && (i == 0 || m.haystack_p[i - 1] == '/')) {
-                    score = 0.0;
-                    break;
-                }
-            }
-    }
-    else if (m.haystack_len > 0) { // normal case
+    score = 1.0;
+
+    // special case for zero-length search string
+    if (m.needle_len == 0) {
+
+        // filter out dot files
+        for (i = 0; i < m.haystack_len; i++) {
+           char c = m.haystack_p[i];
+           if (c == '.' && (i == 0 || m.haystack_p[i - 1] == '/')) {
+               score = 0.0;
+               break;
+           }
+        }
+    } else if (m.haystack_len > 0) { // normal case
 
         // prepare for memoization
         double memo[m.haystack_len * m.needle_len];
-        for (long i = 0, max = m.haystack_len * m.needle_len; i < max; i++)
+        for (i = 0, max = m.haystack_len * m.needle_len; i < max; i++)
             memo[i] = DBL_MAX;
         m.memo = memo;
 
