@@ -4,7 +4,7 @@
 "     MaxSt <https://github.com/MaxSt>
 "     Aaron Jensen <aaronjensen@gmail.com>
 "
-" See LICENSE for linensing concerns.
+" See LICENSE for licensing concerns.
 
 
 " Use pyeval() or py3eval() for newer python versions or fall back to
