@@ -19,7 +19,7 @@ There no real drawbacks, but i need to point out some things that may not work a
 1. Get extension files with your favorite method. Example for Vundle:
 
     ```vim
-    Bundle 'JazzCore/ctrlp-cmatcher'
+    Plugin 'JazzCore/ctrlp-cmatcher'
     ```
 2. Compile C extension.
   If you are getting any errors on this stage you can try the manual installation guide located [here][manual].
