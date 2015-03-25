@@ -28,14 +28,14 @@ There no real drawbacks, but i need to point out some things that may not work a
 
       First, get Python header files. Example for Debian/Ubuntu:
 
-      ```bash
+      ```sh
       [sudo] apt-get install python-dev
       ```
 
       Then run the installation script:
 
-      ```bash
-      cd ~/.vim/bundle/ctrlp-cmatcher/
+      ```sh
+      cd ~/.vim/bundle/ctrlp-cmatcher
       ./install.sh
       ```
 
@@ -43,15 +43,15 @@ There no real drawbacks, but i need to point out some things that may not work a
 
       First [fix the compiler](http://stackoverflow.com/a/22322645/6962):
 
-      ```bash
+      ```sh
       export CFLAGS=-Qunused-arguments
       export CPPFLAGS=-Qunused-arguments
       ```
 
       Then run the installation script:
 
-      ```bash
-      cd ~/.vim/bundle/ctrlp-cmatcher/
+      ```sh
+      cd ~/.vim/bundle/ctrlp-cmatcher
       ./install.sh
       ```
 
@@ -65,7 +65,7 @@ There no real drawbacks, but i need to point out some things that may not work a
 
       Then go to ``ctrlp-cmatcher`` dir and run the installation script:
 
-      ```bash
+      ```
       install_windows.bat
       ```
 
