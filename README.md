@@ -54,7 +54,7 @@ There no real drawbacks, but i need to point out some things that may not work a
       cd ~/.vim/bundle/ctrlp-cmatcher/
       ./install.sh
       ```
-  
+
   * On Windows:
 
       Installation is similar to Linux version, but it can be more complicated becase of weird errors during compilation.
