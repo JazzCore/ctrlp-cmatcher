@@ -1,43 +1,47 @@
-#! /usr/bin/env bash
+#!/usr/bin/env sh
+
 chkPython2()
 {
     cmd=$1
     ret=$($cmd -V 2>&1)
-    if [[ "$ret" == "Python 2."* ]]; then
+    case "$ret" in
+    "Python 2."*)
         return 0
-    else
+        ;;
+    *)
         return 1
-    fi
+        ;;
+    esac
 }
 
 findPython2()
 {
-    cmdlst=("python" "python2" "python27" "python2.7" "python26" "python2.6")
-    for cmd in "${cmdlst[@]}"; do
+    cmd_list="python python2 python27 python2.7 python26 python2.6"
+    for cmd in $cmd_list; do
         if chkPython2 $cmd; then
-            py=$cmd
+            found_python=$cmd
             break
         fi
     done
 
-    if [[ $py == "" ]]; then
+    if [ "$found_python" = "" ]; then
         echo "cannot find python2 automatically" >&2
         while true; do
-            read -p "please input your python2.* command: " cmd
+            read -p "please input your python 2 command: " cmd
             if chkPython2 "$cmd"; then
-                py=$cmd
+                found_python=$cmd
                 break
             fi
             echo "verify [$cmd] with -V failed" >&2
         done
     fi
 
-    echo "$py"
+    echo $found_python
 }
 
-py=$(findPython2)
-echo "find python2 -> $py"
+python=$(findPython2)
+echo "find python2 -> $python"
 
 cd autoload
-$py setup.py build
+$python setup.py build
 cp build/lib*/fuzzycomt.so .
