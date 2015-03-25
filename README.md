@@ -57,7 +57,7 @@ There no real drawbacks, but i need to point out some things that may not work a
   
   * On Windows:
 
-      Installation is similar to Linux version, but it can be more complicated becase of weird errors during compilation.
+      Installation is similar to Linux version, but it can be more complicated because of weird errors during compilation.
 
       First of all, make sure that you have ``python`` in your ``%PATH%``.
 
