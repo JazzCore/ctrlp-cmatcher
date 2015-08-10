@@ -73,29 +73,18 @@ char *strduplicate(const char *s) {
 }
 
 char *slashsplit(char *line) {
-    char *pch, *linedup;
-    char *fname = "";
-
-    // we need to create a copy of input string because strtok() changes string
-    // while splitting. Need to call free() when linedup is not needed.
-    linedup = strduplicate(line);
-
-    pch = strtok(linedup, "/");
-
-    while (pch != NULL)
-    {
-        fname = pch;
-        pch = strtok(NULL, "/");
+    char *fname = line;
+    char *scan = fname;
+    while (scan != '\0')
+    {   
+        if (*scan == '/' || *scan == '\\') {
+            fname = ++scan;
+        } else {
+            ++scan;
+        }
     }
 
-    // We need to get a copy of a filename because fname is a pointer to the
-    // start of filename in linedup string which will be free'd. We need to
-    // call free() when return value of func will not be needed.
-    char *retval = strduplicate(fname);
-
-    free(linedup);
-
-   return retval;
+   return fname;
 }
 
 // comparison function for use with qsort
@@ -377,28 +366,14 @@ matchobj_t ctrlp_find_match(PyObject* str, PyObject* abbrev, mmode_t mmode)
     double score;
     matchobj_t returnobj;
 
-    // Make a copy of input string to replace all backslashes.
-    // We need to create a copy because PyString_AsString returns
-    // string that must not be changed.
-    // We will free() it later
-    char *temp_string;
-    temp_string = strduplicate(PyString_AsString(str));
-
-    // Replace all backslashes
-    for (i = 0; i < strlen(temp_string); i++) {
-        if (temp_string[i] == '\\') {
-            temp_string[i] = '/';
-        }
-    }
-
     matchinfo_t m;
     if (mmode == filenameOnly) {
         // get file name by splitting string on slashes
-        m.haystack_p = slashsplit(temp_string);
+        m.haystack_p = slashsplit(PyString_AsString(str));
         m.haystack_len = strlen(m.haystack_p);
     }
     else {
-        m.haystack_p                 = temp_string;
+        m.haystack_p                 = PyString_AsString(str);
         m.haystack_len               = PyString_Size(str);
     }
     m.needle_p              = PyString_AsString(abbrev);
@@ -430,15 +405,6 @@ matchobj_t ctrlp_find_match(PyObject* str, PyObject* abbrev, mmode_t mmode)
 
         score = ctrlp_recursive_match(&m, 0, 0, 0, 0.0, mmode);
     }
-
-    // need to free memory because strdump() function in slashsplit() uses
-    // malloc to allocate memory, otherwise memory will leak
-    if (mmode == filenameOnly) {
-        free(m.haystack_p);
-    }
-
-    // Free memory after strdup()
-    free(temp_string);
 
     returnobj.str = str;
     returnobj.score = score;
