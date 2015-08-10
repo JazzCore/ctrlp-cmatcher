@@ -60,9 +60,7 @@ void ctrlp_get_line_matches(PyObject* paths,
     // iterate over lines and get match score for every line
     for (i = 0, max = PyList_Size(paths); i < max; i++) {
         PyObject* path = PyList_GetItem(paths, i);
-        matchobj_t match;
-        match = ctrlp_find_match(path, abbrev, mmodeEnum);
-        matches[i] = match;
+        matches[i] = ctrlp_find_match(path, abbrev, mmodeEnum);
     }
 }
 
