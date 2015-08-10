@@ -114,6 +114,11 @@ fu! s:highlight(input, mmode, regex)
         let beginning = beginning.'\([^\/]*$\)\@='
       end
 
+      if a:mmode == "first-non-tab"
+        " Make sure we stop at the tab
+        let ending = ending.'\t'
+      end
+
       for i in range(len(a:input))
         " Surround our current target letter with \zs and \ze so it only
         " actually matches that one letter, but has all preceding and trailing
@@ -169,21 +174,6 @@ fu! matcher#cmatch(lines, input, limit, mmode, ispath, crfile, regex)
       cal s:highlight(a:input, a:mmode, a:regex)
       return array
     endif
-    " use built-in matcher if mmode set to match until first tab ( in other case
-    " tag.vim doesnt work
-    if a:mmode == "first-non-tab"
-      let array = []
-      " call ctrlp.vim function to get proper input pattern
-      let pat = ctrlp#call('s:SplitPattern', a:input)
-      for item in a:lines
-        if call('s:matchtabs', [item, pat]) >= 0
-          cal add(array, item)
-        en
-      endfo
-      "TODO add highlight
-      cal sort(array, ctrlp#call('s:mixedsort'))
-      return array
-    en
 
     let matchlist = s:cmatcher(a:lines, a:input, a:limit, a:mmode, a:ispath, a:crfile)
   en

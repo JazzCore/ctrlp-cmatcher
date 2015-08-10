@@ -163,7 +163,9 @@ double ctrlp_recursive_match(matchinfo_t *m,    // sharable meta-data
              j++, haystack_idx++) {
 
             char d = m->haystack_p[j];
-            if (d == '.') {
+            if (d == '\t' && mmode == firstNonTab) {
+                break;
+            } else if (d == '.') {
                 if (j == 0 || m->haystack_p[j - 1] == '/') {
                     m->dot_file = 1; // this is a dot-file
                 }
