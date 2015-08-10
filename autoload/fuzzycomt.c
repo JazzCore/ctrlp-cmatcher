@@ -26,7 +26,26 @@
 #include "fuzzycomt.h"
 
 // Forward declaration for ctrlp_get_line_matches
-matchobj_t ctrlp_find_match(PyObject* str, PyObject* abbrev, char *mmode);
+matchobj_t ctrlp_find_match(PyObject* str, PyObject* abbrev, mmode_t mmode);
+
+mmode_t getMMode(char *mmode) {
+    mmode_t result = fullLine;
+    if (mmode[0] == 'f') {
+        if (mmode[1] == 'i') {
+            if (mmode[2] == 'l') {
+                result = filenameOnly;
+            } else {
+                result = firstNonTab;
+            }
+        } else {
+            result = fullLine;
+        }
+    } else {
+        result = untilLastTab;
+    }
+
+    return result;
+}
 
 void ctrlp_get_line_matches(PyObject* paths,
                             PyObject* abbrev,
@@ -35,11 +54,14 @@ void ctrlp_get_line_matches(PyObject* paths,
 {
     int i;
     int max;
+
+    mmode_t mmodeEnum = getMMode(mmode);
+
     // iterate over lines and get match score for every line
     for (i = 0, max = PyList_Size(paths); i < max; i++) {
         PyObject* path = PyList_GetItem(paths, i);
         matchobj_t match;
-        match = ctrlp_find_match(path, abbrev, mmode);
+        match = ctrlp_find_match(path, abbrev, mmodeEnum);
         matches[i] = match;
     }
 }
@@ -123,7 +145,8 @@ double ctrlp_recursive_match(matchinfo_t *m,    // sharable meta-data
                        long haystack_idx, // where in the path string to start
                        long needle_idx,   // where in the needle string to start
                        long last_idx,     // location of last matched character
-                       double score)      // cumulative score so far
+                       double score,      // cumulative score so far
+                       mmode_t mmode)
 {
     double seen_score = 0;  // remember best score seen via recursion
     long i, j, distance;
@@ -194,7 +217,7 @@ double ctrlp_recursive_match(matchinfo_t *m,    // sharable meta-data
                 if (++j < m->haystack_len) {
                     // bump cursor one char to the right and
                     // use recursion to try and find a better match
-                    double sub_score = ctrlp_recursive_match(m, j, i, last_idx, score);
+                    double sub_score = ctrlp_recursive_match(m, j, i, last_idx, score, mmode);
                     if (sub_score > seen_score)
                         seen_score = sub_score;
                 }
@@ -350,7 +373,7 @@ PyObject* ctrlp_fuzzycomt_sorted_match_list(PyObject* self, PyObject* args) {
 }
 
 
-matchobj_t ctrlp_find_match(PyObject* str, PyObject* abbrev, char *mmode)
+matchobj_t ctrlp_find_match(PyObject* str, PyObject* abbrev, mmode_t mmode)
 {
     long i, max;
     double score;
@@ -371,7 +394,7 @@ matchobj_t ctrlp_find_match(PyObject* str, PyObject* abbrev, char *mmode)
     }
 
     matchinfo_t m;
-    if (strcmp(mmode, "filename-only") == 0) {
+    if (mmode == filenameOnly) {
         // get file name by splitting string on slashes
         m.haystack_p = slashsplit(temp_string);
         m.haystack_len = strlen(m.haystack_p);
@@ -407,12 +430,12 @@ matchobj_t ctrlp_find_match(PyObject* str, PyObject* abbrev, char *mmode)
             memo[i] = DBL_MAX;
         m.memo = memo;
 
-        score = ctrlp_recursive_match(&m, 0, 0, 0, 0.0);
+        score = ctrlp_recursive_match(&m, 0, 0, 0, 0.0, mmode);
     }
 
     // need to free memory because strdump() function in slashsplit() uses
     // malloc to allocate memory, otherwise memory will leak
-    if (strcmp(mmode, "filename-only") == 0) {
+    if (mmode == filenameOnly) {
         free(m.haystack_p);
     }
 
