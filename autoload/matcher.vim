@@ -23,12 +23,18 @@ else
 endif
 
 let s:script_folder_path = escape( expand( '<sfile>:p:h' ), '\' )
+" -----
+" PYTHON UNINDETED CODE BEGIN
+" -----
 python << ImportEOF
 import sys, os, vim
 sys.path.insert( 0, os.path.abspath( vim.eval('s:script_folder_path' ) ) )
 import fuzzycomt
 sys.path.pop(0)
 ImportEOF
+" -----
+" PYTHON UNINDETED CODE END
+" -----
 
 fu! s:matchtabs(item, pat)
   return match(split(a:item, '\t\+')[0], a:pat)
@@ -40,6 +46,9 @@ fu! s:matchfname(item, pat)
 endf
 
 fu! s:cmatcher(lines, input, limit, mmode, ispath, crfile)
+  " -----
+  " PYTHON UNINDETED CODE BEGIN
+  " -----
 python << EOF
 lines = vim.eval('a:lines')
 searchinp = vim.eval('a:input')
@@ -60,7 +69,10 @@ try:
 except:
   matchlist = []
 EOF
-return s:pyeval("matchlist")
+  " -----
+  " PYTHON UNINDETED CODE END
+  " -----
+  return s:pyeval("matchlist")
 endf
 
 fu! s:escapechars(chars)
