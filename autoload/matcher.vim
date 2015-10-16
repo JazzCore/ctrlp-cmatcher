@@ -23,12 +23,18 @@ else
 endif
 
 let s:script_folder_path = escape( expand( '<sfile>:p:h' ), '\' )
+" -----
+" PYTHON UNINDETED CODE BEGIN
+" -----
 python << ImportEOF
 import sys, os, vim
 sys.path.insert( 0, os.path.abspath( vim.eval('s:script_folder_path' ) ) )
 import fuzzycomt
 sys.path.pop(0)
 ImportEOF
+" -----
+" PYTHON UNINDETED CODE END
+" -----
 
 fu! s:matchtabs(item, pat)
   return match(split(a:item, '\t\+')[0], a:pat)
@@ -40,6 +46,9 @@ fu! s:matchfname(item, pat)
 endf
 
 fu! s:cmatcher(lines, input, limit, mmode, ispath, crfile)
+  " -----
+  " PYTHON UNINDETED CODE BEGIN
+  " -----
 python << EOF
 lines = vim.eval('a:lines')
 searchinp = vim.eval('a:input')
@@ -60,7 +69,10 @@ try:
 except:
   matchlist = []
 EOF
-return s:pyeval("matchlist")
+  " -----
+  " PYTHON UNINDETED CODE END
+  " -----
+  return s:pyeval("matchlist")
 endf
 
 fu! s:escapechars(chars)
@@ -100,6 +112,11 @@ fu! s:highlight(input, mmode, regex)
       if a:mmode == "filename-only"
         " Make sure there are no slashes in our match
         let beginning = beginning.'\([^\/]*$\)\@='
+      end
+
+      if a:mmode == "first-non-tab"
+        " Make sure we stop at the tab
+        let ending = ending.'\t'
       end
 
       for i in range(len(a:input))
@@ -157,21 +174,6 @@ fu! matcher#cmatch(lines, input, limit, mmode, ispath, crfile, regex)
       cal s:highlight(a:input, a:mmode, a:regex)
       return array
     endif
-    " use built-in matcher if mmode set to match until first tab ( in other case
-    " tag.vim doesnt work
-    if a:mmode == "first-non-tab"
-      let array = []
-      " call ctrlp.vim function to get proper input pattern
-      let pat = ctrlp#call('s:SplitPattern', a:input)
-      for item in a:lines
-        if call('s:matchtabs', [item, pat]) >= 0
-          cal add(array, item)
-        en
-      endfo
-      "TODO add highlight
-      cal sort(array, ctrlp#call('s:mixedsort'))
-      return array
-    en
 
     let matchlist = s:cmatcher(a:lines, a:input, a:limit, a:mmode, a:ispath, a:crfile)
   en

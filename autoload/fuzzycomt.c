@@ -26,7 +26,26 @@
 #include "fuzzycomt.h"
 
 // Forward declaration for ctrlp_get_line_matches
-matchobj_t ctrlp_find_match(PyObject* str, PyObject* abbrev, char *mmode);
+matchobj_t ctrlp_find_match(PyObject* str, PyObject* abbrev, mmode_t mmode);
+
+mmode_t getMMode(char *mmode) {
+    mmode_t result = fullLine;
+    if (mmode[0] == 'f') {
+        if (mmode[1] == 'i') {
+            if (mmode[2] == 'l') {
+                result = filenameOnly;
+            } else {
+                result = firstNonTab;
+            }
+        } else {
+            result = fullLine;
+        }
+    } else {
+        result = untilLastTab;
+    }
+
+    return result;
+}
 
 void ctrlp_get_line_matches(PyObject* paths,
                             PyObject* abbrev,
@@ -35,12 +54,13 @@ void ctrlp_get_line_matches(PyObject* paths,
 {
     int i;
     int max;
+
+    mmode_t mmodeEnum = getMMode(mmode);
+
     // iterate over lines and get match score for every line
     for (i = 0, max = PyList_Size(paths); i < max; i++) {
         PyObject* path = PyList_GetItem(paths, i);
-        matchobj_t match;
-        match = ctrlp_find_match(path, abbrev, mmode);
-        matches[i] = match;
+        matches[i] = ctrlp_find_match(path, abbrev, mmodeEnum);
     }
 }
 
@@ -53,29 +73,18 @@ char *strduplicate(const char *s) {
 }
 
 char *slashsplit(char *line) {
-    char *pch, *linedup;
-    char *fname = "";
-
-    // we need to create a copy of input string because strtok() changes string
-    // while splitting. Need to call free() when linedup is not needed.
-    linedup = strduplicate(line);
-
-    pch = strtok(linedup, "/");
-
-    while (pch != NULL)
-    {
-        fname = pch;
-        pch = strtok(NULL, "/");
+    char *fname = line;
+    char *scan = fname;
+    while (scan != '\0')
+    {   
+        if (*scan == '/' || *scan == '\\') {
+            fname = ++scan;
+        } else {
+            ++scan;
+        }
     }
 
-    // We need to get a copy of a filename because fname is a pointer to the
-    // start of filename in linedup string which will be free'd. We need to
-    // call free() when return value of func will not be needed.
-    char *retval = strduplicate(fname);
-
-    free(linedup);
-
-   return retval;
+   return fname;
 }
 
 // comparison function for use with qsort
@@ -123,7 +132,8 @@ double ctrlp_recursive_match(matchinfo_t *m,    // sharable meta-data
                        long haystack_idx, // where in the path string to start
                        long needle_idx,   // where in the needle string to start
                        long last_idx,     // location of last matched character
-                       double score)      // cumulative score so far
+                       double score,      // cumulative score so far
+                       mmode_t mmode)
 {
     double seen_score = 0;  // remember best score seen via recursion
     long i, j, distance;
@@ -153,7 +163,9 @@ double ctrlp_recursive_match(matchinfo_t *m,    // sharable meta-data
              j++, haystack_idx++) {
 
             char d = m->haystack_p[j];
-            if (d == '.') {
+            if (d == '\t' && mmode == firstNonTab) {
+                break;
+            } else if (d == '.') {
                 if (j == 0 || m->haystack_p[j - 1] == '/') {
                     m->dot_file = 1; // this is a dot-file
                 }
@@ -194,7 +206,7 @@ double ctrlp_recursive_match(matchinfo_t *m,    // sharable meta-data
                 if (++j < m->haystack_len) {
                     // bump cursor one char to the right and
                     // use recursion to try and find a better match
-                    double sub_score = ctrlp_recursive_match(m, j, i, last_idx, score);
+                    double sub_score = ctrlp_recursive_match(m, j, i, last_idx, score, mmode);
                     if (sub_score > seen_score)
                         seen_score = sub_score;
                 }
@@ -350,34 +362,20 @@ PyObject* ctrlp_fuzzycomt_sorted_match_list(PyObject* self, PyObject* args) {
 }
 
 
-matchobj_t ctrlp_find_match(PyObject* str, PyObject* abbrev, char *mmode)
+matchobj_t ctrlp_find_match(PyObject* str, PyObject* abbrev, mmode_t mmode)
 {
     long i, max;
     double score;
     matchobj_t returnobj;
 
-    // Make a copy of input string to replace all backslashes.
-    // We need to create a copy because PyString_AsString returns
-    // string that must not be changed.
-    // We will free() it later
-    char *temp_string;
-    temp_string = strduplicate(PyString_AsString(str));
-
-    // Replace all backslashes
-    for (i = 0; i < strlen(temp_string); i++) {
-        if (temp_string[i] == '\\') {
-            temp_string[i] = '/';
-        }
-    }
-
     matchinfo_t m;
-    if (strcmp(mmode, "filename-only") == 0) {
+    if (mmode == filenameOnly) {
         // get file name by splitting string on slashes
-        m.haystack_p = slashsplit(temp_string);
+        m.haystack_p = slashsplit(PyString_AsString(str));
         m.haystack_len = strlen(m.haystack_p);
     }
     else {
-        m.haystack_p                 = temp_string;
+        m.haystack_p                 = PyString_AsString(str);
         m.haystack_len               = PyString_Size(str);
     }
     m.needle_p              = PyString_AsString(abbrev);
@@ -407,17 +405,8 @@ matchobj_t ctrlp_find_match(PyObject* str, PyObject* abbrev, char *mmode)
             memo[i] = DBL_MAX;
         m.memo = memo;
 
-        score = ctrlp_recursive_match(&m, 0, 0, 0, 0.0);
+        score = ctrlp_recursive_match(&m, 0, 0, 0, 0.0, mmode);
     }
-
-    // need to free memory because strdump() function in slashsplit() uses
-    // malloc to allocate memory, otherwise memory will leak
-    if (strcmp(mmode, "filename-only") == 0) {
-        free(m.haystack_p);
-    }
-
-    // Free memory after strdup()
-    free(temp_string);
 
     returnobj.str = str;
     returnobj.score = score;

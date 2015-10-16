@@ -28,6 +28,15 @@
 #include <string.h>
 #include <assert.h>
 
+
+
+typedef enum mmode {
+    fullLine,
+    filenameOnly,
+    firstNonTab,
+    untilLastTab
+} mmode_t;
+
 typedef struct {
     PyObject *str;                       // Python object with file path
     double  score;                       // score of string
@@ -43,7 +52,7 @@ typedef struct {
     double  *memo;                       // memoization
 } matchinfo_t;
 
-matchobj_t ctrlp_find_match(PyObject* str, PyObject* abbrev, char *mmode);
+matchobj_t ctrlp_find_match(PyObject* str, PyObject* abbrev, mmode_t mmode);
 
 void ctrlp_get_line_matches(PyObject* paths, PyObject* abbrev, matchobj_t matches[], char *mode);
 
