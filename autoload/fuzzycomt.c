@@ -364,7 +364,7 @@ matchobj_t ctrlp_find_match(PyObject* str, PyObject* abbrev, char *mmode)
     temp_string = strduplicate(PyString_AsString(str));
 
     // Replace all backslashes
-    for (i = 0; i < strlen(temp_string); i++) {
+    for (i = 0; temp_string[i]; i++) {
         if (temp_string[i] == '\\') {
             temp_string[i] = '/';
         }
