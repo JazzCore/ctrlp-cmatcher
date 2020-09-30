@@ -1,6 +1,6 @@
 # CtrlP C matching extension
 
-This is a [ctrlp.vim][ctrlp] extension which can be used to get different matching algorithm, written in C language with a small portion of Python (only to access C module).
+This is a [ctrlp.vim][ctrlp] extension which can be used to get different matching algorithms, written in C language with a small portion of Python (only to access C module).
 
 This extension uses an adapted version of [CommandT][commandt] matching, big thanks to @wincent!
 
