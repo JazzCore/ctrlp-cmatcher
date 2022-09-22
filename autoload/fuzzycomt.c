@@ -83,10 +83,12 @@ int ctrlp_comp_alpha(const void *a, const void *b) {
     matchobj_t a_val = *(matchobj_t *)a;
     matchobj_t b_val = *(matchobj_t *)b;
 
-    char *a_p = PyString_AsString(a_val.str);
-    long a_len = PyString_Size(a_val.str);
-    char *b_p = PyString_AsString(b_val.str);
-    long b_len = PyString_Size(b_val.str);
+    const char *a_p = PyUnicode_AsUTF8(a_val.str);
+    Py_ssize_t a_len = 0;
+    PyUnicode_AsUTF8AndSize(a_val.str, &a_len);
+    const char *b_p = PyUnicode_AsUTF8(b_val.str);
+    Py_ssize_t b_len = 0;
+    PyUnicode_AsUTF8AndSize(b_val.str, &b_len);
 
     int order = 0;
     if (a_len > b_len) {
@@ -236,7 +238,7 @@ PyObject* ctrlp_fuzzycomt_match(PyObject* self, PyObject* args) {
         return 0;
     }
 
-    if (PyString_Check(abbrev) != 1) {
+    if (PyUnicode_Check(abbrev) != 1) {
         PyErr_SetString(PyExc_TypeError,"expected a string");
         return 0;
     }
@@ -247,7 +249,9 @@ PyObject* ctrlp_fuzzycomt_match(PyObject* self, PyObject* args) {
         limit = PyList_Size(paths);
     }
 
-    if ( PyString_Size(abbrev) == 0) {
+    Py_ssize_t len = 0;
+    PyUnicode_AsUTF8AndSize(abbrev, &len);
+    if (len == 0) {
         // if string is empty - just return first (:param limit) lines
         PyObject *initlist;
 
@@ -304,7 +308,7 @@ PyObject* ctrlp_fuzzycomt_sorted_match_list(PyObject* self, PyObject* args) {
         return 0;
     }
 
-    if (PyString_Check(abbrev) != 1) {
+    if (PyUnicode_Check(abbrev) != 1) {
         PyErr_SetString(PyExc_TypeError,"expected a string");
         return 0;
     }
@@ -315,7 +319,9 @@ PyObject* ctrlp_fuzzycomt_sorted_match_list(PyObject* self, PyObject* args) {
         limit = PyList_Size(paths);
     }
 
-    if ( PyString_Size(abbrev) == 0) {
+    Py_ssize_t len = 0;
+    PyUnicode_AsUTF8AndSize(abbrev, &len);
+    if (len == 0) {
         // if string is empty - just return first (:param limit) lines
         PyObject *initlist;
 
@@ -352,16 +358,16 @@ PyObject* ctrlp_fuzzycomt_sorted_match_list(PyObject* self, PyObject* args) {
 
 matchobj_t ctrlp_find_match(PyObject* str, PyObject* abbrev, char *mmode)
 {
-    long i, max;
+    size_t i, max;
     double score;
     matchobj_t returnobj;
 
     // Make a copy of input string to replace all backslashes.
-    // We need to create a copy because PyString_AsString returns
+    // We need to create a copy because PyUnicode_AsUTF8 returns
     // string that must not be changed.
     // We will free() it later
     char *temp_string;
-    temp_string = strduplicate(PyString_AsString(str));
+    temp_string = strduplicate(PyUnicode_AsUTF8(str));
 
     // Replace all backslashes
     for (i = 0; i < strlen(temp_string); i++) {
@@ -377,11 +383,14 @@ matchobj_t ctrlp_find_match(PyObject* str, PyObject* abbrev, char *mmode)
         m.haystack_len = strlen(m.haystack_p);
     }
     else {
-        m.haystack_p                 = temp_string;
-        m.haystack_len               = PyString_Size(str);
+        m.haystack_p = temp_string;
+        m.haystack_len = 0;
+        PyUnicode_AsUTF8AndSize(str, &m.haystack_len);
     }
-    m.needle_p              = PyString_AsString(abbrev);
-    m.needle_len            = PyString_Size(abbrev);
+    m.needle_p = PyUnicode_AsUTF8(abbrev);
+    m.needle_len = 0;
+    PyUnicode_AsUTF8AndSize(abbrev, &m.needle_len);
+
     m.max_score_per_char    = (1.0 / m.haystack_len + 1.0 / m.needle_len) / 2;
     m.dot_file              = 0;
 
@@ -392,7 +401,7 @@ matchobj_t ctrlp_find_match(PyObject* str, PyObject* abbrev, char *mmode)
     if (m.needle_len == 0) {
 
         // filter out dot files
-        for (i = 0; i < m.haystack_len; i++) {
+        for (i = 0; i < (size_t) m.haystack_len; i++) {
            char c = m.haystack_p[i];
            if (c == '.' && (i == 0 || m.haystack_p[i - 1] == '/')) {
                score = 0.0;
@@ -433,8 +442,15 @@ static PyMethodDef fuzzycomt_funcs[] = {
     {NULL}
 };
 
-PyMODINIT_FUNC initfuzzycomt()
+static struct PyModuleDef fuzzycomt_module = {
+    PyModuleDef_HEAD_INIT,
+    "fuzzycomt",
+    "",
+    -1,
+    fuzzycomt_funcs,
+};
+
+PyMODINIT_FUNC PyInit_fuzzycomt()
 {
-    Py_InitModule3("fuzzycomt", fuzzycomt_funcs,
-                   "Fuzzy matching module");
+     return PyModule_Create(&fuzzycomt_module);
 }
