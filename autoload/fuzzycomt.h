@@ -34,13 +34,13 @@ typedef struct {
 } matchobj_t;
 
 typedef struct {
-    char    *haystack_p;                 // pointer to string to be searched
-    long    haystack_len;                // length of same
-    char    *needle_p;                   // pointer to search string (abbreviation)
-    long    needle_len;                  // length of same
-    double  max_score_per_char;
-    int     dot_file;                    // boolean: true if str is a dot-file
-    double  *memo;                       // memoization
+    char       *haystack_p;                 // pointer to string to be searched
+    Py_ssize_t haystack_len;                // length of same
+    const char *needle_p;                   // pointer to search string (abbreviation)
+    Py_ssize_t needle_len;                  // length of same
+    double     max_score_per_char;
+    int        dot_file;                    // boolean: true if str is a dot-file
+    double     *memo;                       // memoization
 } matchinfo_t;
 
 matchobj_t ctrlp_find_match(PyObject* str, PyObject* abbrev, char *mmode);

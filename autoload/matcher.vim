@@ -23,7 +23,7 @@ else
 endif
 
 let s:script_folder_path = escape( expand( '<sfile>:p:h' ), '\' )
-python << ImportEOF
+python3 << ImportEOF
 import sys, os, vim
 sys.path.insert( 0, os.path.abspath( vim.eval('s:script_folder_path' ) ) )
 import fuzzycomt
@@ -40,7 +40,7 @@ fu! s:matchfname(item, pat)
 endf
 
 fu! s:cmatcher(lines, input, limit, mmode, ispath, crfile)
-python << EOF
+python3 << EOF
 lines = vim.eval('a:lines')
 searchinp = vim.eval('a:input')
 limit = int(vim.eval('a:limit'))
